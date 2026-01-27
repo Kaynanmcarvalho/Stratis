@@ -29,7 +29,17 @@ export const EmpresaList: React.FC<EmpresaListProps> = ({ onEdit, onDelete, onTo
       setError(null);
       const { EmpresaService } = await import('../../services/empresa.service');
       const data = await EmpresaService.list();
-      setEmpresas(data);
+      
+      // Converter datas do Firestore Timestamp para Date
+      const empresasWithDates = data.map(empresa => ({
+        ...empresa,
+        planStartDate: empresa.planStartDate?.toDate ? empresa.planStartDate.toDate() : new Date(empresa.planStartDate),
+        planEndDate: empresa.planEndDate?.toDate ? empresa.planEndDate.toDate() : new Date(empresa.planEndDate),
+        createdAt: empresa.createdAt?.toDate ? empresa.createdAt.toDate() : new Date(empresa.createdAt),
+        updatedAt: empresa.updatedAt?.toDate ? empresa.updatedAt.toDate() : new Date(empresa.updatedAt),
+      }));
+      
+      setEmpresas(empresasWithDates);
     } catch (err: any) {
       console.error('Error loading empresas:', err);
       setError(err.message || 'Erro ao carregar empresas');
@@ -39,12 +49,41 @@ export const EmpresaList: React.FC<EmpresaListProps> = ({ onEdit, onDelete, onTo
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('pt-BR');
+  const formatDate = (date: Date | any) => {
+    if (!date) return '-';
+    try {
+      // Se for Timestamp do Firestore
+      if (date.toDate && typeof date.toDate === 'function') {
+        return date.toDate().toLocaleDateString('pt-BR');
+      }
+      // Se for string ou número
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return '-';
+      return dateObj.toLocaleDateString('pt-BR');
+    } catch (error) {
+      return '-';
+    }
   };
 
   const isPlanActive = (empresa: Company) => {
-    return empresa.active && new Date(empresa.planEndDate) > new Date();
+    if (!empresa.active) return false;
+    
+    try {
+      let endDate: Date;
+      
+      // Converter planEndDate para Date se necessário
+      if (empresa.planEndDate?.toDate && typeof empresa.planEndDate.toDate === 'function') {
+        endDate = empresa.planEndDate.toDate();
+      } else {
+        endDate = new Date(empresa.planEndDate);
+      }
+      
+      if (isNaN(endDate.getTime())) return false;
+      
+      return endDate > new Date();
+    } catch (error) {
+      return false;
+    }
   };
 
   if (loading) {

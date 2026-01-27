@@ -7,7 +7,7 @@ import { FadeInUp, StaggerList, StaggerItem } from '../components/ui/Animations'
 
 const IAConfigPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-100 dark:from-gray-950 dark:via-purple-950/20 dark:to-gray-900 p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-6 space-y-6">
       {/* Header */}
       <FadeInUp>
         <div className="flex items-center gap-4">

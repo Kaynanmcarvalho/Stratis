@@ -25,8 +25,17 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({ empresa, onSubmit, onC
     setError(null);
 
     try {
-      await onSubmit(formData);
+      // Garantir que active seja boolean
+      const dataToSubmit = {
+        ...formData,
+        active: Boolean(formData.active),
+        planMonths: Number(formData.planMonths),
+      };
+      
+      console.log('Submitting empresa data:', dataToSubmit);
+      await onSubmit(dataToSubmit);
     } catch (err: any) {
+      console.error('Error submitting empresa:', err);
       setError(err.message || 'Erro ao salvar empresa');
     } finally {
       setLoading(false);

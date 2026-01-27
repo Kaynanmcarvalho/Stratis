@@ -28,19 +28,20 @@ export const UnassignedUsers: React.FC<UnassignedUsersProps> = ({ onRefresh }) =
     try {
       setLoading(true);
       
-      // Carregar todos os usuários
-      const usersResponse = await apiService.get('/usuarios');
-      const allUsers = usersResponse?.data?.data || usersResponse?.data || [];
+      const userRole = localStorage.getItem('userRole');
       
-      // Filtrar usuários sem empresa ou com companyId inválido
-      const unassigned = allUsers.filter((user: User) => 
-        !user.companyId || 
-        user.companyId === 'platform' || 
-        user.companyId === 'dev-company' ||
-        user.companyId === 'default'
-      );
-      
-      setUsers(unassigned);
+      if (userRole !== 'admin_platform') {
+        console.warn('Only admin_platform can view unassigned users');
+        setUsers([]);
+        setCompanies([]);
+        setLoading(false);
+        return;
+      }
+
+      // Usar a nova rota específica para usuários sem empresa
+      const usersResponse = await apiService.get('/usuarios/unassigned/list');
+      const unassignedUsers = usersResponse?.data?.data || usersResponse?.data || [];
+      setUsers(unassignedUsers);
 
       // Carregar empresas disponíveis
       const { EmpresaService } = await import('../../services/empresa.service');

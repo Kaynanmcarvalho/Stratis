@@ -24,6 +24,13 @@ const requireAdminOrOwner = (req: any, res: any, next: any) => {
 };
 
 /**
+ * GET /api/usuarios/unassigned/list
+ * Lista usuários sem empresa válida (Admin apenas)
+ * IMPORTANTE: Esta rota deve vir ANTES de /:id
+ */
+router.get('/unassigned/list', requireAdminPlatform, UserController.listUnassigned);
+
+/**
  * GET /api/usuarios
  * Lista usuários da empresa
  */

@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { User as UserIcon, Edit2, Trash2, Lock, Unlock, Shield, Mail, UserCheck, UserX } from 'lucide-react';
 import { User } from '../../types/user.types';
 import { userService } from '../../services/user.service';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
+import { LoadingState } from '../ui/LoadingState';
+import { EmptyState } from '../ui/EmptyState';
+import { ErrorState } from '../ui/ErrorState';
 
 interface UserListProps {
   companyId?: string;
   onEdit?: (userId: string) => void;
   onEditPermissions?: (userId: string) => void;
+  onRefresh?: () => void;
 }
 
-export const UserList: React.FC<UserListProps> = ({ companyId, onEdit, onEditPermissions }) => {
+export const UserList: React.FC<UserListProps> = ({ companyId, onEdit, onEditPermissions, onRefresh }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,9 +30,11 @@ export const UserList: React.FC<UserListProps> = ({ companyId, onEdit, onEditPer
       setLoading(true);
       setError(null);
       const data = await userService.list(companyId);
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err: any) {
+      console.error('Error loading users:', err);
       setError(err.response?.data?.error || 'Erro ao carregar usuários');
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -34,10 +44,13 @@ export const UserList: React.FC<UserListProps> = ({ companyId, onEdit, onEditPer
     try {
       if (currentActive) {
         await userService.deactivate(userId);
+        alert('Usuário desativado com sucesso!');
       } else {
         await userService.activate(userId);
+        alert('Usuário ativado com sucesso!');
       }
       loadUsers();
+      if (onRefresh) onRefresh();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Erro ao alterar status');
     }
@@ -50,7 +63,9 @@ export const UserList: React.FC<UserListProps> = ({ companyId, onEdit, onEditPer
 
     try {
       await userService.delete(userId);
+      alert('Usuário deletado com sucesso!');
       loadUsers();
+      if (onRefresh) onRefresh();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Erro ao deletar usuário');
     }
@@ -58,101 +73,156 @@ export const UserList: React.FC<UserListProps> = ({ companyId, onEdit, onEditPer
 
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
-      admin_platform: 'Admin da Plataforma',
-      owner: 'Dono da Empresa',
-      user: 'Usuário Comum',
+      admin_platform: 'Admin Plataforma',
+      owner: 'Dono',
+      user: 'Usuário',
     };
     return labels[role] || role;
   };
 
+  const getRoleBadge = (role: string) => {
+    const variants: Record<string, any> = {
+      admin_platform: 'error',
+      owner: 'warning',
+      user: 'info',
+    };
+    return variants[role] || 'default';
+  };
+
   if (loading) {
-    return <div className="loading">Carregando usuários...</div>;
+    return <LoadingState message="Carregando usuários..." />;
   }
 
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return <ErrorState message={error} onRetry={loadUsers} />;
+  }
+
+  if (users.length === 0) {
+    return (
+      <EmptyState
+        icon={UserIcon}
+        title="Nenhum usuário cadastrado"
+        description="Comece criando seu primeiro usuário"
+      />
+    );
   }
 
   return (
-    <div className="user-list">
-      <div className="list-header">
-        <h2>Usuários</h2>
-        <span className="count">{users.length} usuário(s)</span>
-      </div>
-
-      {users.length === 0 ? (
-        <div className="empty-state">
-          <p>Nenhum usuário encontrado</p>
+    <Card hover>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Usuários Cadastrados</CardTitle>
+          <Badge variant="info">{users.length} usuário(s)</Badge>
         </div>
-      ) : (
-        <div className="table-container">
-          <table>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full">
             <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Tipo</th>
-                <th>Status</th>
-                <th>Permissões</th>
-                <th>Ações</th>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Usuário</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Email</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Tipo</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Permissões</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Ações</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{getRoleLabel(user.role)}</td>
-                  <td>
-                    <span className={`status ${user.active ? 'active' : 'inactive'}`}>
-                      {user.active ? 'Ativo' : 'Inativo'}
-                    </span>
+                <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                        <UserIcon className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white">{user.name}</span>
+                    </div>
                   </td>
-                  <td>
-                    <span className="permissions-count">
-                      {user.permissions?.length || 0} permissão(ões)
-                    </span>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm">{user.email}</span>
+                    </div>
                   </td>
-                  <td className="actions">
-                    {onEdit && (
-                      <button
-                        onClick={() => onEdit(user.id)}
-                        className="btn-edit"
-                        title="Editar"
+                  <td className="py-4 px-4">
+                    <Badge variant={getRoleBadge(user.role)}>
+                      {getRoleLabel(user.role)}
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-4">
+                    <Badge variant={user.active ? 'success' : 'error'}>
+                      {user.active ? (
+                        <>
+                          <UserCheck className="w-3 h-3 mr-1" />
+                          Ativo
+                        </>
+                      ) : (
+                        <>
+                          <UserX className="w-3 h-3 mr-1" />
+                          Inativo
+                        </>
+                      )}
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {user.permissions?.length || 0} permissão(ões)
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center justify-end gap-2">
+                      {onEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEdit(user.id)}
+                          title="Editar usuário"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {onEditPermissions && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEditPermissions(user.id)}
+                          title="Editar permissões"
+                        >
+                          <Shield className="w-4 h-4 text-violet-500" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleActive(user.id, user.active)}
+                        title={user.active ? 'Desativar' : 'Ativar'}
                       >
-                        ✏️
-                      </button>
-                    )}
-                    {onEditPermissions && (
-                      <button
-                        onClick={() => onEditPermissions(user.id)}
-                        className="btn-permissions"
-                        title="Editar Permissões"
+                        {user.active ? (
+                          <Lock className="w-4 h-4 text-amber-500" />
+                        ) : (
+                          <Unlock className="w-4 h-4 text-green-500" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(user.id)}
+                        title="Deletar usuário"
                       >
-                        🔐
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleToggleActive(user.id, user.active)}
-                      className={`btn-toggle ${user.active ? 'deactivate' : 'activate'}`}
-                      title={user.active ? 'Desativar' : 'Ativar'}
-                    >
-                      {user.active ? '🔴' : '🟢'}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.id)}
-                      className="btn-delete"
-                      title="Deletar"
-                    >
-                      🗑️
-                    </button>
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 };

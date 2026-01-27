@@ -46,6 +46,60 @@ export class UserController {
   }
 
   /**
+   * GET /usuarios/unassigned/list - Lista usuários sem empresa válida (Admin apenas)
+   */
+  static async listUnassigned(req: Request, res: Response): Promise<void> {
+    try {
+      // Buscar TODOS os usuários (sem filtro de companyId)
+      const db = require('../config/firebase.config').db;
+      const usersSnapshot = await db.collection('users')
+        .where('deletedAt', '==', null)
+        .orderBy('createdAt', 'desc')
+        .get();
+
+      const allUsers: User[] = [];
+      usersSnapshot.forEach((doc: any) => {
+        allUsers.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+          deletedAt: doc.data().deletedAt?.toDate() || null,
+        });
+      });
+
+      // Buscar todas as empresas válidas
+      const companiesSnapshot = await db.collection('companies').get();
+      const validCompanyIds: string[] = [];
+      companiesSnapshot.forEach((doc: any) => {
+        validCompanyIds.push(doc.id);
+      });
+
+      // Filtrar usuários sem empresa válida
+      const unassignedUsers = allUsers.filter(user => 
+        !user.companyId || 
+        !validCompanyIds.includes(user.companyId) ||
+        user.companyId === 'platform' ||
+        user.companyId === 'dev-company' ||
+        user.companyId === 'default'
+      );
+
+      res.json({
+        success: true,
+        data: unassignedUsers,
+        total: unassignedUsers.length,
+      });
+    } catch (error: any) {
+      console.error('Error in listUnassigned:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro ao listar usuários sem empresa',
+        message: error.message,
+      });
+    }
+  }
+
+  /**
    * GET /usuarios/:id - Busca usuário por ID
    */
   static async getById(req: Request, res: Response): Promise<void> {
