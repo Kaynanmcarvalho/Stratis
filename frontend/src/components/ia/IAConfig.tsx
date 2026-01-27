@@ -36,6 +36,11 @@ export const IAConfig: React.FC<IAConfigProps> = ({ companyId }) => {
   }, [userCompanyId]);
 
   const loadConfig = async () => {
+    if (!userCompanyId) {
+      console.warn('No companyId available');
+      return;
+    }
+    
     try {
       const response = await apiService.get(`/empresas/${userCompanyId}`) as any;
       if (response.config) {

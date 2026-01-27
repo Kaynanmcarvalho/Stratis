@@ -21,7 +21,10 @@ interface UsageRecord {
   timestamp: any;
 }
 
-export const UsageStats: React.FC<UsageStatsProps> = ({ companyId = 'default', userId }) => {
+export const UsageStats: React.FC<UsageStatsProps> = ({ companyId, userId }) => {
+  // Usa o companyId do usuário logado se não for passado
+  const userCompanyId = companyId || localStorage.getItem('companyId') || '';
+  
   const [usage, setUsage] = useState<UsageRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCostCentavos, setTotalCostCentavos] = useState(0);
@@ -29,8 +32,12 @@ export const UsageStats: React.FC<UsageStatsProps> = ({ companyId = 'default', u
   const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
-    loadUsage();
-  }, [companyId, userId, startDate, endDate]);
+    if (userCompanyId) {
+      loadUsage();
+    } else {
+      setLoading(false);
+    }
+  }, [userCompanyId, userId, startDate, endDate]);
 
   const loadUsage = async () => {
     setLoading(true);
@@ -55,6 +62,8 @@ export const UsageStats: React.FC<UsageStatsProps> = ({ companyId = 'default', u
       setTotalCostCentavos(total);
     } catch (error) {
       console.error('Error loading usage stats:', error);
+      setUsage([]);
+      setTotalCostCentavos(0);
     } finally {
       setLoading(false);
     }
@@ -92,6 +101,22 @@ export const UsageStats: React.FC<UsageStatsProps> = ({ companyId = 'default', u
 
   if (loading) {
     return <LoadingState message="Carregando estatísticas..." />;
+  }
+
+  if (!userCompanyId) {
+    return (
+      <Card>
+        <CardContent className="p-12 text-center">
+          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Empresa não configurada
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Configure uma empresa para visualizar estatísticas de uso de IA
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

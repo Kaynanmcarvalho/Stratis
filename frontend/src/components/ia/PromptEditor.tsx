@@ -29,6 +29,11 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({ companyId }) => {
   }, [prompt]);
 
   const loadPrompt = async () => {
+    if (!userCompanyId) {
+      console.warn('No companyId available');
+      return;
+    }
+    
     try {
       const response = await apiService.get(`/empresas/${userCompanyId}`) as any;
       setPrompt(response.config?.iaPrompt || '');
