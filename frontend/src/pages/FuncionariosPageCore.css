@@ -1,0 +1,48 @@
+/* ============================================
+   EQUIPE - CENTRO OPERACIONAL DE PÁTIO
+   Sistema premium Apple-like para uso real
+   ============================================ */
+
+.equipe-container,
+.funcionario-detalhe-container,
+.ponto-virtual-container {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animações suaves */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover states para cards */
+.equipe-container > div > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.equipe-container > div > div:active {
+  transform: translateY(0);
+}
+
+/* Botões de ponto - feedback tátil */
+.btn-ponto:active {
+  transform: scale(0.98);
+}
+
+/* Responsividade */
+@media (max-width: 380px) {
+  .equipe-container,
+  .funcionario-detalhe-container,
+  .ponto-virtual-container {
+    padding: 12px;
+    padding-bottom: 100px;
+  }
+}

@@ -1,0 +1,757 @@
+/* ============================================
+   WHATSAPP OS - PAINEL OPERACIONAL APPLE-LIKE
+   Sistema nativo, não web
+   ============================================ */
+
+.whatsapp-os-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F5F5F7 0%, #FAFAFA 100%);
+  padding-bottom: 180px;
+}
+
+/* ============================================
+   QR CODE FULLSCREEN
+   ============================================ */
+
+.qr-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.qr-fullscreen-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.qr-header-minimal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.qr-title-minimal {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.qr-timeout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.qr-timeout .icon {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.qr-timeout span {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.qr-code-wrapper {
+  padding: 32px;
+  background: white;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.qr-steps-minimal {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.qr-step-minimal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 100px;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+.qr-step-minimal span:last-child {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.btn-cancelar-qr {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: white;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-cancelar-qr:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   STATUS BAR FIXO (TOPO)
+   ============================================ */
+
+.status-bar-fixed {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.status-bar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.status-connection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.connected {
+  background: #34C759;
+  box-shadow: 0 0 8px rgba(52, 199, 89, 0.5);
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+.status-dot.reconnecting {
+  background: #FF9500;
+  animation: pulse-orange 1s ease-in-out infinite;
+}
+
+.status-dot.disconnected {
+  background: #8E8E93;
+}
+
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes pulse-orange {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.9); }
+}
+
+.status-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1D1D1F;
+}
+
+.status-account {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-name {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1D1D1F;
+}
+
+.account-number {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #86868B;
+}
+
+.status-sync {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.status-sync .icon {
+  width: 14px;
+  height: 14px;
+  color: #86868B;
+}
+
+.status-sync span {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #86868B;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   CONTEÚDO PRINCIPAL
+   ============================================ */
+
+.whatsapp-os-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============================================
+   ESTADO DESCONECTADO
+   ============================================ */
+
+.estado-desconectado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60px 24px;
+  gap: 24px;
+}
+
+.icon-estado {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.25);
+}
+
+.icon-estado .icon {
+  width: 40px;
+  height: 40px;
+  color: white;
+}
+
+.titulo-estado {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.descricao-estado {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #86868B;
+  margin: 0;
+  max-width: 280px;
+}
+
+.btn-acao-principal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+  transition: all 0.2s ease;
+  min-height: 56px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.btn-acao-principal:active {
+  transform: scale(0.98);
+}
+
+.btn-acao-principal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-acao-principal .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.spinner-inline {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   SEÇÕES OS
+   ============================================ */
+
+.secao-os {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.secao-os-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.secao-os-header .icon {
+  width: 24px;
+  height: 24px;
+  color: #5856D6;
+}
+
+.secao-os-titulo {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+/* ============================================
+   STATS OS GRID
+   ============================================ */
+
+.stats-os-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat-os-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #F5F5F7;
+  border-radius: 14px;
+  transition: all 0.2s ease;
+}
+
+.stat-os-card:active {
+  transform: scale(0.98);
+  background: #EBEBED;
+}
+
+.stat-os-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.stat-os-icon.conversas {
+  background: linear-gradient(135deg, #007AFF, #0051D5);
+}
+
+.stat-os-icon.agendamentos {
+  background: linear-gradient(135deg, #34C759, #30D158);
+}
+
+.stat-os-icon.resolvidos {
+  background: linear-gradient(135deg, #5856D6, #4A47C4);
+}
+
+.stat-os-icon.intervencoes {
+  background: linear-gradient(135deg, #FF9500, #FF8C00);
+}
+
+.stat-os-icon .icon {
+  width: 22px;
+  height: 22px;
+  color: white;
+}
+
+.stat-os-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-os-numero {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1D1D1F;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-os-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #86868B;
+}
+
+/* ============================================
+   CONTROLES IA OS
+   ============================================ */
+
+.controles-ia-os {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controle-ia-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  background: #F5F5F7;
+  border-radius: 14px;
+  transition: all 0.2s ease;
+}
+
+.controle-ia-item.bloqueado {
+  opacity: 0.5;
+}
+
+.controle-ia-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.controle-ia-info .icon {
+  width: 20px;
+  height: 20px;
+  color: #86868B;
+  flex-shrink: 0;
+}
+
+.controle-ia-item.permitido .controle-ia-info .icon {
+  color: #34C759;
+}
+
+.controle-ia-item.bloqueado .controle-ia-info .icon {
+  color: #FF3B30;
+}
+
+.controle-ia-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1D1D1F;
+}
+
+/* ============================================
+   TOGGLE OS (Apple-like)
+   ============================================ */
+
+.toggle-os {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  background: #E5E5EA;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.toggle-os.on {
+  background: #34C759;
+}
+
+.toggle-os:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-os-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.toggle-os.on .toggle-os-thumb {
+  transform: translateX(20px);
+}
+
+/* ============================================
+   BOTÕES DE AÇÃO
+   ============================================ */
+
+.btn-acao-secundaria {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  background: white;
+  border: 2px solid #E5E5EA;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #FF3B30;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btn-acao-secundaria:active {
+  transform: scale(0.98);
+  background: #FAFAFA;
+}
+
+.btn-acao-secundaria .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   CONFIRMAÇÃO OS
+   ============================================ */
+
+.confirmacao-os {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 16px;
+  background: rgba(255, 59, 48, 0.05);
+  border: 2px solid rgba(255, 59, 48, 0.2);
+  border-radius: 14px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirmacao-os-texto {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.confirmacao-os-texto .icon {
+  width: 20px;
+  height: 20px;
+  color: #FF3B30;
+  flex-shrink: 0;
+}
+
+.confirmacao-os-texto span {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1D1D1F;
+}
+
+.confirmacao-os-acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-confirmar-cancelar,
+.btn-confirmar-sim {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-confirmar-cancelar {
+  background: white;
+  color: #1D1D1F;
+  border: 2px solid #E5E5EA;
+}
+
+.btn-confirmar-cancelar:active {
+  transform: scale(0.98);
+  background: #FAFAFA;
+}
+
+.btn-confirmar-sim {
+  background: #FF3B30;
+  color: white;
+}
+
+.btn-confirmar-sim:active {
+  transform: scale(0.98);
+}
+
+.btn-confirmar-sim:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   BOTÃO DE INTERVENÇÃO RÁPIDA (FIXO RODAPÉ)
+   ============================================ */
+
+.btn-intervencao-rapida {
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+  background: linear-gradient(135deg, #FF9500, #FF8C00);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 8px 24px rgba(255, 149, 0, 0.4);
+  transition: all 0.2s ease;
+  z-index: 50;
+}
+
+.btn-intervencao-rapida:active {
+  transform: scale(0.98);
+}
+
+.btn-intervencao-rapida .icon {
+  width: 24px;
+  height: 24px;
+}

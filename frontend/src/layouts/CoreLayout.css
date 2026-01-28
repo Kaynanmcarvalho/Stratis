@@ -1,0 +1,26 @@
+/* ============================================
+   CORE LAYOUT - STRAXIS DESIGN
+   ============================================ */
+
+.core-layout {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: var(--color-background);
+  transition: background-color var(--transition-base);
+}
+
+.core-content {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 6rem; /* Space for dock */
+}
+
+/* Smooth rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,512 @@
+/* ============================================
+   AGENDAMENTOS - CENTRO DE COORDENAÇÃO
+   Sistema operacional de campo
+   ============================================ */
+
+.agendamentos-coordenacao {
+  padding: 16px;
+  padding-bottom: 100px;
+  background: #F5F5F7;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.coordenacao-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.coordenacao-data {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.coordenacao-data .icon {
+  width: 32px;
+  height: 32px;
+  color: #007AFF;
+}
+
+.data-info {
+  flex: 1;
+}
+
+.data-titulo {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0 0 2px 0;
+  letter-spacing: -0.5px;
+}
+
+.data-completa {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #86868B;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.btn-novo-agendamento {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #007AFF, #0051D5);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-novo-agendamento:active {
+  transform: scale(0.95);
+}
+
+.btn-novo-agendamento .icon {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+/* ============================================
+   RESUMO RÁPIDO
+   ============================================ */
+
+.resumo-rapido {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.resumo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.resumo-item.alerta {
+  background: rgba(255, 59, 48, 0.05);
+  border-color: rgba(255, 59, 48, 0.2);
+}
+
+.resumo-numero {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1D1D1F;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.resumo-item.alerta .resumo-numero {
+  color: #FF3B30;
+}
+
+.resumo-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #86868B;
+  text-align: center;
+}
+
+/* ============================================
+   PERÍODOS
+   ============================================ */
+
+.periodos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.periodo-secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.periodo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.periodo-titulo {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.periodo-contador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  background: #007AFF;
+  color: white;
+  border-radius: 999px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   AGENDAMENTOS LISTA
+   ============================================ */
+
+.agendamentos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agendamento-card-coord {
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.agendamento-card-coord.pendente {
+  border-color: #FF9500;
+  background: linear-gradient(135deg, rgba(255, 149, 0, 0.03), rgba(255, 149, 0, 0.01));
+}
+
+.agendamento-card-coord.confirmado {
+  border-color: #34C759;
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.03), rgba(52, 199, 89, 0.01));
+}
+
+.agendamento-card-coord.em_risco {
+  border-color: #FF3B30;
+  background: linear-gradient(135deg, rgba(255, 59, 48, 0.05), rgba(255, 59, 48, 0.02));
+}
+
+.agendamento-card-coord.com-conflito {
+  box-shadow: 0 4px 16px rgba(255, 59, 48, 0.15);
+}
+
+/* ============================================
+   CARD HEADER
+   ============================================ */
+
+.agendamento-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.agendamento-horario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #F5F5F7;
+  border-radius: 10px;
+}
+
+.agendamento-horario .icon {
+  width: 16px;
+  height: 16px;
+  color: #86868B;
+}
+
+.agendamento-horario span {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1D1D1F;
+  font-variant-numeric: tabular-nums;
+}
+
+.agendamento-origem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.agendamento-origem.ia {
+  background: rgba(88, 86, 214, 0.1);
+  color: #5856D6;
+}
+
+.agendamento-origem.manual {
+  background: rgba(0, 122, 255, 0.1);
+  color: #007AFF;
+}
+
+.agendamento-origem.ajustado {
+  background: rgba(255, 149, 0, 0.1);
+  color: #FF9500;
+}
+
+.agendamento-origem.reagendado {
+  background: rgba(142, 142, 147, 0.1);
+  color: #8E8E93;
+}
+
+.agendamento-origem .icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============================================
+   CARD BODY
+   ============================================ */
+
+.agendamento-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agendamento-cliente {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.agendamento-detalhes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detalhe-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detalhe-item .icon {
+  width: 16px;
+  height: 16px;
+  color: #86868B;
+  flex-shrink: 0;
+}
+
+.detalhe-item span {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1D1D1F;
+}
+
+.tipo-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tipo-badge.carga {
+  background: rgba(52, 199, 89, 0.15);
+  color: #34C759;
+}
+
+.tipo-badge.descarga {
+  background: rgba(255, 149, 0, 0.15);
+  color: #FF9500;
+}
+
+/* ============================================
+   STATUS VISUAL
+   ============================================ */
+
+.agendamento-status-visual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.agendamento-status-visual.confirmado {
+  background: rgba(52, 199, 89, 0.1);
+  color: #34C759;
+}
+
+.agendamento-status-visual.pendente {
+  background: rgba(255, 149, 0, 0.1);
+  color: #FF9500;
+}
+
+.agendamento-status-visual.em_risco {
+  background: rgba(255, 59, 48, 0.1);
+  color: #FF3B30;
+}
+
+.agendamento-status-visual .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   CONFLITOS
+   ============================================ */
+
+.agendamento-conflitos {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 59, 48, 0.08);
+  border: 2px solid rgba(255, 59, 48, 0.2);
+  border-radius: 10px;
+}
+
+.agendamento-conflitos .icon {
+  width: 20px;
+  height: 20px;
+  color: #FF3B30;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.conflitos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.conflito-texto {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FF3B30;
+  line-height: 1.4;
+}
+
+/* ============================================
+   AÇÕES
+   ============================================ */
+
+.agendamento-acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-acao {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  min-height: 52px;
+}
+
+.btn-acao:active {
+  transform: scale(0.98);
+}
+
+.btn-acao .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-acao.confirmar {
+  background: linear-gradient(135deg, #34C759, #30D158);
+  color: white;
+  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+}
+
+.btn-acao.cancelar {
+  background: white;
+  color: #FF3B30;
+  border: 2px solid #FF3B30;
+}
+
+.btn-acao.iniciar {
+  background: linear-gradient(135deg, #007AFF, #0051D5);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty-state-coord {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60px 24px;
+  gap: 16px;
+}
+
+.empty-state-coord .icon {
+  width: 64px;
+  height: 64px;
+  color: #86868B;
+}
+
+.empty-titulo {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0;
+}
+
+.empty-descricao {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #86868B;
+  margin: 0;
+}

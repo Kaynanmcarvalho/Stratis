@@ -1,8 +1,9 @@
 /**
  * Tailwind CSS v3 Configuration
+ * BASE DISABLED - Conflicting with custom grid layouts
  */
 
-@tailwind base;
+/* @tailwind base; */
 @tailwind components;
 @tailwind utilities;
 

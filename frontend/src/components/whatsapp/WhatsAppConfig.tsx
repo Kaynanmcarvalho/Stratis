@@ -176,26 +176,27 @@ export const WhatsAppConfig: React.FC = () => {
 
         {/* QR Code Section */}
         {qrCode && (
-          <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+          <div className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
             <div className="flex items-center gap-2 mb-4">
-              <Smartphone className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Smartphone className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
               <h3 className="font-bold text-gray-900 dark:text-white">Escaneie o QR Code</h3>
             </div>
             
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl mb-4 flex items-center justify-center">
-              <div className="p-4 bg-white rounded-lg shadow-inner">
+            <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+              <div className="p-2 sm:p-4 bg-white rounded-lg shadow-inner max-w-full">
                 <QRCodeSVG 
                   value={qrCode} 
-                  size={256}
+                  size={Math.min(256, window.innerWidth - 120)}
                   level="H"
                   includeMargin={true}
+                  className="w-full h-auto max-w-[256px]"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <p className="text-sm font-semibold text-gray-900 dark:text-white">Como conectar:</p>
-              <ol className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-decimal list-inside">
+              <ol className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 space-y-1 list-decimal list-inside pl-2">
                 <li>Abra o WhatsApp no seu celular</li>
                 <li>Toque em Menu ou Configurações</li>
                 <li>Toque em Aparelhos conectados</li>

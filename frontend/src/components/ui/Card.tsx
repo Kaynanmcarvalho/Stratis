@@ -32,7 +32,7 @@ export const Card: React.FC<CardProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg';
+  const baseStyles = 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg w-full max-w-full overflow-hidden';
   const hoverStyles = hover ? 'transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20 hover:-translate-y-0.5' : '';
   const combinedClassName = `${baseStyles} ${hoverStyles} ${paddingStyles[padding]} ${className}`;
   

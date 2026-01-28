@@ -51,6 +51,8 @@ const MainLayout: React.FC = () => {
           display: flex;
           min-height: 100vh;
           background: var(--color-background, #fafafa);
+          width: 100%;
+          overflow-x: hidden;
         }
 
         .main-content {
@@ -60,21 +62,42 @@ const MainLayout: React.FC = () => {
           margin-left: 280px;
           margin-top: 64px;
           transition: margin-left 0.3s ease;
+          width: calc(100% - 280px);
+          max-width: 100vw;
+          overflow-x: hidden;
         }
 
         .main-content.sidebar-collapsed {
           margin-left: 80px;
+          width: calc(100% - 80px);
         }
 
         @media (max-width: 767px) {
           .main-content {
             margin-left: 0 !important;
+            width: 100% !important;
+            max-width: 100vw;
           }
         }
 
         .main-body {
           flex: 1;
-          overflow: auto;
+          overflow-x: hidden;
+          overflow-y: auto;
+          padding: 1rem;
+          max-width: 100%;
+        }
+
+        @media (min-width: 768px) {
+          .main-body {
+            padding: 1.5rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .main-body {
+            padding: 2rem;
+          }
         }
       `}</style>
     </div>

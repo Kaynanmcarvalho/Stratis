@@ -41,6 +41,9 @@ firestore-debug.log
 
 # Firebase Admin SDK - NUNCA COMMITAR!
 *-firebase-adminsdk-*.json
+serviceAccountKey.json
+backend/serviceAccountKey.json
+straxis-*-firebase-adminsdk-*.json
 
 # PWA
 service-worker.js.map
