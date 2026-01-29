@@ -11,6 +11,12 @@ import {
 
 const router = Router();
 
+/**
+ * GET /api/whatsapp/health
+ * Health check - não requer autenticação
+ */
+router.get('/health', WhatsAppController.health);
+
 // Todas as rotas de WhatsApp requerem autenticação e permissão de Dono
 router.use(authMiddleware);
 router.use(tenantMiddleware);

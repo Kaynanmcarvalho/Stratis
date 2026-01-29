@@ -25,6 +25,10 @@
   background: linear-gradient(180deg, #E8E8ED 0%, #F2F2F7 100%) !important;
 }
 
+.core-content:has([class*="nerve-center"]) {
+  background: #FFFFFF !important;
+}
+
 .core-content:has([class*="trabalhos-operacional"]) {
   background: #FFFFFF !important;
 }
@@ -43,6 +47,14 @@
 
 .core-content:has([class*="whatsapp-os-container"]) {
   background: #FFFFFF !important;
+}
+
+.core-content:has([class*="whatsapp-cockpit-container"]) {
+  background: #fafafa !important;
+}
+
+.core-content:has([class*="ia-config-container"]) {
+  background: #ffffff !important;
 }
 
 /* Smooth rendering */

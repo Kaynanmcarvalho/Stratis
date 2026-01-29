@@ -3,6 +3,17 @@ import { WhatsAppService } from '../services/whatsapp.service';
 
 export class WhatsAppController {
   /**
+   * GET /whatsapp/health - Verifica se o serviço está rodando
+   */
+  static async health(req: Request, res: Response): Promise<void> {
+    res.json({
+      success: true,
+      message: 'WhatsApp service is running',
+      timestamp: new Date(),
+    });
+  }
+
+  /**
    * POST /whatsapp/connect - Conecta ao WhatsApp
    */
   static async connect(req: Request, res: Response): Promise<void> {

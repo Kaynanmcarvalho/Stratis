@@ -1,24 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Smartphone, 
-  CheckCircle2, 
-  XCircle, 
-  AlertTriangle,
-  Brain,
-  Clock,
-  MessageSquare,
-  Calendar,
-  MapPin,
-  DollarSign,
-  UserPlus,
-  Ban,
-  Hand
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Power, Smartphone, Clock, AlertCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { whatsappService } from '../services/whatsapp.service';
 import { Dock } from '../components/core/Dock';
-import './CorePages.css';
-import './WhatsAppPageCore.css';
+import { useToast } from '../hooks/useToast';
 
 interface ConnectionStatus {
   status: 'connected' | 'reconnecting' | 'disconnected';
@@ -27,160 +12,515 @@ interface ConnectionStatus {
   lastSync: Date | null;
 }
 
-interface IAControls {
-  autoAttend: boolean;
-  autoSchedule: boolean;
-  sendPrices: boolean;
-  sendLocation: boolean;
-  closeContracts: boolean;
-  promiseOutsideCapacity: boolean;
-}
-
-interface ActivityStats {
-  activeContacts: number;
-  scheduledByIA: number;
-  resolvedByIA: number;
-  humanInterventions: number;
-}
-
 const WhatsAppPageCore: React.FC = () => {
+  const toast = useToast();
+  
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
-    status: 'connected',
-    phoneNumber: '+55 62 99451-0649',
-    accountName: 'Straxis Logística',
-    lastSync: new Date(),
-  });
-  
-  const [iaControls, setIaControls] = useState<IAControls>({
-    autoAttend: true,
-    autoSchedule: true,
-    sendPrices: true,
-    sendLocation: true,
-    closeContracts: false,
-    promiseOutsideCapacity: false,
-  });
-  
-  const [activityStats] = useState<ActivityStats>({
-    activeContacts: 12,
-    scheduledByIA: 8,
-    resolvedByIA: 10,
-    humanInterventions: 2,
+    status: 'disconnected',
+    phoneNumber: undefined,
+    accountName: undefined,
+    lastSync: null,
   });
   
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [qrTimeout, setQrTimeout] = useState<number | null>(null);
+  const [backendOnline, setBackendOnline] = useState<boolean>(false);
+  const [checkingBackend, setCheckingBackend] = useState(true);
+  
+  const qrTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  const connectionCheckRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Simular timeout do QR Code
+  // Verificar se backend está online
+  useEffect(() => {
+    const checkBackend = async () => {
+      try {
+        await whatsappService.checkHealth();
+        setBackendOnline(true);
+        setCheckingBackend(false);
+      } catch (err) {
+        setBackendOnline(false);
+        setCheckingBackend(false);
+      }
+    };
+    
+    checkBackend();
+    const interval = setInterval(checkBackend, 10000); // Verificar a cada 10s
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Verificar status da conexão
+  useEffect(() => {
+    document.body.style.background = '#ffffff';
+    
+    const checkStatus = async () => {
+      if (!backendOnline) return;
+      
+      try {
+        const status = await whatsappService.getStatus();
+        if (status.connected) {
+          setConnectionStatus({
+            status: 'connected',
+            phoneNumber: undefined,
+            accountName: undefined,
+            lastSync: status.lastActivity ? new Date(status.lastActivity) : null,
+          });
+          // Limpar QR se conectado
+          if (qrCode) {
+            setQrCode(null);
+            setSessionId(null);
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao verificar status:', err);
+      }
+    };
+    
+    checkStatus();
+    const interval = setInterval(checkStatus, 3000); // Verificar a cada 3s
+    
+    return () => {
+      document.body.style.background = '';
+      clearInterval(interval);
+    };
+  }, [backendOnline, qrCode]);
+
+  // Gerenciar timer do QR Code (20 segundos - tempo real do WhatsApp)
   useEffect(() => {
     if (qrCode) {
-      const timer = setTimeout(() => {
+      // Limpar timers anteriores
+      if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
+      if (connectionCheckRef.current) clearInterval(connectionCheckRef.current);
+      
+      // Timer de expiração (20 segundos)
+      setQrTimeout(20);
+      qrTimerRef.current = setTimeout(() => {
         setQrCode(null);
         setQrTimeout(null);
-        alert('QR Code expirado. Tente novamente.');
-      }, 60000); // 60 segundos
-      setQrTimeout(60);
+        toast.warning({
+          title: 'Código expirado',
+          message: 'O QR Code expira a cada 20 segundos. Gere um novo código.',
+        });
+      }, 20000);
       
-      const countdown = setInterval(() => {
-        setQrTimeout(prev => prev && prev > 0 ? prev - 1 : null);
+      // Countdown visual
+      countdownRef.current = setInterval(() => {
+        setQrTimeout(prev => {
+          if (prev && prev > 0) {
+            return prev - 1;
+          }
+          return null;
+        });
       }, 1000);
+      
+      // Verificar conexão a cada 2 segundos
+      connectionCheckRef.current = setInterval(async () => {
+        try {
+          const status = await whatsappService.getStatus();
+          if (status.connected) {
+            // Limpar timers
+            if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            if (connectionCheckRef.current) clearInterval(connectionCheckRef.current);
+            
+            setQrCode(null);
+            setConnectionStatus({
+              status: 'connected',
+              phoneNumber: undefined,
+              accountName: undefined,
+              lastSync: new Date(),
+            });
+            toast.success({
+              title: 'Sistema ativado',
+              message: 'Secretária automática operacional',
+            });
+          }
+        } catch (err) {
+          console.error('Erro ao verificar conexão:', err);
+        }
+      }, 2000);
 
       return () => {
-        clearTimeout(timer);
-        clearInterval(countdown);
+        if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        if (connectionCheckRef.current) clearInterval(connectionCheckRef.current);
       };
     }
-  }, [qrCode]);
+  }, [qrCode, toast]);
 
   const handleConnect = async () => {
-    try {
-      setLoading(true);
-      setQrCode('https://wa.me/qr/DEMO_QR_CODE_STRAXIS');
-      setSessionId('demo-session-id');
-    } catch (err) {
-      console.error('Erro ao conectar:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDisconnect = async () => {
-    if (!sessionId) return;
-
-    try {
-      setLoading(true);
-      await whatsappService.disconnect(sessionId);
-      setQrCode(null);
-      setSessionId(null);
-      setConnectionStatus({
-        status: 'disconnected',
-        lastSync: null,
+    if (!backendOnline) {
+      toast.error({
+        title: 'Backend offline',
+        message: 'O servidor não está respondendo. Verifique se o backend está rodando.',
       });
-      setShowDisconnectConfirm(false);
-    } catch (err) {
-      console.error('Erro ao desconectar:', err);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await whatsappService.connect();
+      
+      // Se QR Code estiver vazio, significa que sessão foi recuperada
+      if (!response.qrCode || response.qrCode === '') {
+        toast.success({
+          title: 'Sessão recuperada',
+          message: 'Conectado automaticamente à sessão anterior',
+        });
+        // Forçar atualização do status
+        const status = await whatsappService.getStatus();
+        if (status.connected) {
+          setConnectionStatus({
+            status: 'connected',
+            phoneNumber: undefined,
+            accountName: undefined,
+            lastSync: new Date(),
+          });
+        }
+      } else {
+        setQrCode(response.qrCode);
+        setSessionId(response.sessionId);
+        toast.info({
+          title: 'QR Code gerado',
+          message: 'Escaneie o código em 20 segundos',
+        });
+      }
+    } catch (err: any) {
+      console.error('Erro ao conectar:', err);
+      
+      let errorMessage = 'Erro ao gerar código. Tente novamente.';
+      
+      if (err.message?.includes('sessão ativa')) {
+        errorMessage = 'Já existe uma sessão ativa. Recarregue a página.';
+      } else if (err.message?.includes('515')) {
+        errorMessage = 'Número bloqueado temporariamente. Aguarde 15-30 minutos e tente novamente.';
+      } else if (err.message?.includes('timeout')) {
+        errorMessage = 'Tempo esgotado. Verifique sua conexão e tente novamente.';
+      } else if (err.message?.includes('Network')) {
+        errorMessage = 'Erro de rede. Verifique se o backend está rodando.';
+      }
+      
+      toast.error({
+        title: 'Erro ao conectar',
+        message: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleIAControl = (key: keyof IAControls) => {
-    setIaControls(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleCancel = () => {
+    // Limpar timers
+    if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (connectionCheckRef.current) clearInterval(connectionCheckRef.current);
+    
+    setQrCode(null);
+    setQrTimeout(null);
   };
 
-  const handleAssumeConversation = () => {
-    alert('Assumindo conversa manualmente. IA pausada neste contato.');
-  };
-
-  const isConnected = connectionStatus.status === 'connected';
-  const isReconnecting = connectionStatus.status === 'reconnecting';
   const isDisconnected = connectionStatus.status === 'disconnected';
+
+  if (checkingBackend) {
+    return (
+      <>
+        <div style={{ 
+          minHeight: '100vh', 
+          background: '#ffffff', 
+          paddingBottom: '100px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              border: '3px solid #f0f0f0',
+              borderTopColor: '#000',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite'
+            }} />
+            <p style={{
+              fontSize: '14px',
+              color: '#666',
+              fontWeight: 500
+            }}>
+              Verificando backend...
+            </p>
+          </div>
+        </div>
+        <Dock />
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </>
+    );
+  }
+
+  if (!backendOnline) {
+    return (
+      <>
+        <div style={{ 
+          minHeight: '100vh', 
+          background: '#ffffff', 
+          paddingBottom: '100px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '60px 24px',
+            maxWidth: '400px',
+            margin: '0 auto',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              margin: '0 auto 32px',
+              borderRadius: '20px',
+              background: '#fff5f5',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #ffe0e0'
+            }}>
+              <AlertCircle size={36} strokeWidth={1.5} color="#dc2626" />
+            </div>
+            
+            <h1 style={{ 
+              fontSize: '24px', 
+              fontWeight: 500, 
+              color: '#000', 
+              marginBottom: '12px',
+              letterSpacing: '-0.02em',
+              margin: '0 0 12px 0'
+            }}>
+              Backend offline
+            </h1>
+            
+            <p style={{ 
+              fontSize: '16px', 
+              color: '#666', 
+              lineHeight: '1.5',
+              marginBottom: '24px',
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              margin: '0 0 24px 0'
+            }}>
+              O servidor não está respondendo. Verifique se o backend está rodando na porta 5000.
+            </p>
+
+            <code style={{
+              display: 'block',
+              padding: '12px 16px',
+              background: '#fafafa',
+              border: '1px solid #f0f0f0',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontFamily: 'monospace',
+              color: '#666',
+              marginBottom: '24px'
+            }}>
+              cd backend && npm run dev
+            </code>
+
+            <button 
+              onClick={() => window.location.reload()}
+              style={{
+                height: '48px',
+                padding: '0 24px',
+                border: '2px solid #000',
+                borderRadius: '12px',
+                background: '#fff',
+                color: '#000',
+                fontSize: '15px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                letterSpacing: '-0.01em'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#000';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.color = '#000';
+              }}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+        <Dock />
+      </>
+    );
+  }
 
   return (
     <>
-      {/* QR CODE FULLSCREEN (quando ativo) */}
       {qrCode && (
-        <div className="qr-fullscreen-overlay">
-          <div className="qr-fullscreen-content">
-            <div className="qr-header-minimal">
-              <h2 className="qr-title-minimal">Escanear QR Code</h2>
-              {qrTimeout && (
-                <div className="qr-timeout">
-                  <Clock className="icon" />
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(20px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '24px',
+          animation: 'fadeIn 0.3s ease'
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            padding: '40px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+            animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              marginBottom: '32px' 
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 500, 
+                color: '#000',
+                letterSpacing: '-0.02em',
+                margin: 0
+              }}>
+                Conectar WhatsApp
+              </h2>
+              {qrTimeout !== null && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  background: qrTimeout <= 5 ? '#fff5f5' : '#f5f5f5',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: qrTimeout <= 5 ? '#dc2626' : '#666',
+                  animation: qrTimeout <= 5 ? 'pulse 1s ease-in-out infinite' : 'none'
+                }}>
+                  <Clock size={14} />
                   <span>{qrTimeout}s</span>
                 </div>
               )}
             </div>
             
-            <div className="qr-code-wrapper">
-              <QRCodeSVG
-                value={qrCode}
-                size={260}
-                level="H"
-                includeMargin={true}
-              />
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              padding: '32px',
+              background: '#fafafa',
+              borderRadius: '16px',
+              marginBottom: '32px'
+            }}>
+              <QRCodeSVG value={qrCode} size={220} level="H" />
             </div>
 
-            <div className="qr-steps-minimal">
-              <div className="qr-step-minimal">
-                <span className="step-num">1</span>
-                <span>WhatsApp</span>
-              </div>
-              <div className="qr-step-minimal">
-                <span className="step-num">2</span>
-                <span>Aparelhos</span>
-              </div>
-              <div className="qr-step-minimal">
-                <span className="step-num">3</span>
-                <span>Escanear</span>
-              </div>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              gap: '12px',
+              marginBottom: '32px',
+              paddingLeft: '4px'
+            }}>
+              {[
+                'Abra o WhatsApp',
+                'Acesse Aparelhos conectados',
+                'Escaneie o código'
+              ].map((text, i) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '6px',
+                    background: '#000',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    flexShrink: 0
+                  }}>
+                    {i + 1}
+                  </div>
+                  <span style={{ 
+                    fontSize: '15px', 
+                    fontWeight: 400, 
+                    color: '#666',
+                    letterSpacing: '-0.01em'
+                  }}>
+                    {text}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{
+              padding: '12px 16px',
+              background: '#fffbeb',
+              border: '1px solid #fef3c7',
+              borderRadius: '12px',
+              marginBottom: '24px'
+            }}>
+              <p style={{
+                fontSize: '13px',
+                color: '#92400e',
+                margin: 0,
+                lineHeight: '1.5'
+              }}>
+                ⚠️ O código expira em 20 segundos. Se expirar, clique em "Cancelar" e gere um novo código.
+              </p>
             </div>
 
             <button 
-              className="btn-cancelar-qr"
-              onClick={() => setQrCode(null)}
+              onClick={handleCancel}
+              style={{
+                width: '100%',
+                height: '48px',
+                border: 'none',
+                borderRadius: '12px',
+                background: '#f5f5f5',
+                color: '#000',
+                fontSize: '15px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                letterSpacing: '-0.01em'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#e8e8e8'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#f5f5f5'}
             >
               Cancelar
             </button>
@@ -188,259 +528,198 @@ const WhatsAppPageCore: React.FC = () => {
         </div>
       )}
 
-      <div className="whatsapp-os-container">
-        {/* ESTADO GLOBAL FIXO NO TOPO */}
-        <div className="status-bar-fixed">
-          <div className="status-bar-content">
-            <div className="status-connection">
-              <div className={`status-dot ${connectionStatus.status}`} />
-              <span className="status-text">
-                {isConnected && 'Conectado'}
-                {isReconnecting && 'Reconectando'}
-                {isDisconnected && 'Desconectado'}
-              </span>
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#ffffff', 
+        paddingBottom: '100px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }} className="whatsapp-cockpit-container">
+        {isDisconnected && !qrCode && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '60px 24px',
+            maxWidth: '400px',
+            margin: '0 auto',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              margin: '0 auto 32px',
+              borderRadius: '20px',
+              background: '#fafafa',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #f0f0f0'
+            }}>
+              <Power size={36} strokeWidth={1.5} color="#999" />
             </div>
-            {isConnected && (
-              <div className="status-account">
-                <span className="account-name">{connectionStatus.accountName}</span>
-                <span className="account-number">{connectionStatus.phoneNumber}</span>
-              </div>
-            )}
+            
+            <h1 style={{ 
+              fontSize: '24px', 
+              fontWeight: 500, 
+              color: '#000', 
+              marginBottom: '12px',
+              letterSpacing: '-0.02em',
+              margin: '0 0 12px 0'
+            }}>
+              Sistema desconectado
+            </h1>
+            
+            <p style={{ 
+              fontSize: '16px', 
+              color: '#666', 
+              lineHeight: '1.5',
+              marginBottom: '40px',
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              margin: '0 0 40px 0'
+            }}>
+              Conecte o WhatsApp para ativar a secretária automática
+            </p>
+
+            <button 
+              onClick={handleConnect}
+              disabled={loading}
+              style={{
+                height: '56px',
+                padding: '0 32px',
+                border: 'none',
+                borderRadius: '14px',
+                background: '#000',
+                color: '#fff',
+                fontSize: '16px',
+                fontWeight: 500,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                letterSpacing: '-0.01em'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+              }}
+            >
+              {loading ? (
+                <>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    borderTopColor: '#fff',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite'
+                  }} />
+                  <span>Gerando código...</span>
+                </>
+              ) : (
+                <>
+                  <Smartphone size={20} strokeWidth={2} />
+                  <span>Ativar sistema</span>
+                </>
+              )}
+            </button>
           </div>
-          {isConnected && connectionStatus.lastSync && (
-            <div className="status-sync">
-              <Clock className="icon" />
-              <span>
-                {new Date(connectionStatus.lastSync).toLocaleTimeString('pt-BR', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
+        )}
+
+        {connectionStatus.status === 'connected' && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '60px 24px',
+            maxWidth: '400px',
+            margin: '0 auto',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              margin: '0 auto 32px',
+              borderRadius: '20px',
+              background: '#f0fdf4',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #bbf7d0'
+            }}>
+              <Smartphone size={36} strokeWidth={1.5} color="#16a34a" />
             </div>
-          )}
-        </div>
-
-        {/* CONTEÚDO PRINCIPAL */}
-        <div className="whatsapp-os-content">
-          {/* ESTADO: DESCONECTADO */}
-          {isDisconnected && !qrCode && (
-            <div className="estado-desconectado">
-              <div className="icon-estado">
-                <Smartphone className="icon" />
-              </div>
-              <h2 className="titulo-estado">WhatsApp Desconectado</h2>
-              <p className="descricao-estado">Conecte para ativar a secretária automática</p>
-              <button 
-                className="btn-acao-principal"
-                onClick={handleConnect}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <div className="spinner-inline" />
-                    <span>Gerando QR...</span>
-                  </>
-                ) : (
-                  <>
-                    <Smartphone className="icon" />
-                    <span>Conectar WhatsApp</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* ESTADO: CONECTADO */}
-          {isConnected && (
-            <>
-              {/* VISÃO OPERACIONAL */}
-              <div className="secao-os">
-                <div className="stats-os-grid">
-                  <div className="stat-os-card">
-                    <div className="stat-os-icon conversas">
-                      <MessageSquare className="icon" />
-                    </div>
-                    <div className="stat-os-content">
-                      <span className="stat-os-numero">{activityStats.activeContacts}</span>
-                      <span className="stat-os-label">Ativos</span>
-                    </div>
-                  </div>
-
-                  <div className="stat-os-card">
-                    <div className="stat-os-icon agendamentos">
-                      <Calendar className="icon" />
-                    </div>
-                    <div className="stat-os-content">
-                      <span className="stat-os-numero">{activityStats.scheduledByIA}</span>
-                      <span className="stat-os-label">Agendados</span>
-                    </div>
-                  </div>
-
-                  <div className="stat-os-card">
-                    <div className="stat-os-icon resolvidos">
-                      <CheckCircle2 className="icon" />
-                    </div>
-                    <div className="stat-os-content">
-                      <span className="stat-os-numero">{activityStats.resolvedByIA}</span>
-                      <span className="stat-os-label">Resolvidos</span>
-                    </div>
-                  </div>
-
-                  <div className="stat-os-card">
-                    <div className="stat-os-icon intervencoes">
-                      <AlertTriangle className="icon" />
-                    </div>
-                    <div className="stat-os-content">
-                      <span className="stat-os-numero">{activityStats.humanInterventions}</span>
-                      <span className="stat-os-label">Manuais</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* CONTROLE DA SECRETÁRIA */}
-              <div className="secao-os">
-                <div className="secao-os-header">
-                  <Brain className="icon" />
-                  <h3 className="secao-os-titulo">Secretária Automática</h3>
-                </div>
-
-                <div className="controles-ia-os">
-                  {/* Controles Permitidos */}
-                  <div className="controle-ia-item permitido">
-                    <div className="controle-ia-info">
-                      <UserPlus className="icon" />
-                      <span className="controle-ia-label">Atender novos contatos</span>
-                    </div>
-                    <button 
-                      className={`toggle-os ${iaControls.autoAttend ? 'on' : 'off'}`}
-                      onClick={() => toggleIAControl('autoAttend')}
-                    >
-                      <span className="toggle-os-thumb" />
-                    </button>
-                  </div>
-
-                  <div className="controle-ia-item permitido">
-                    <div className="controle-ia-info">
-                      <Calendar className="icon" />
-                      <span className="controle-ia-label">Agendar trabalhos</span>
-                    </div>
-                    <button 
-                      className={`toggle-os ${iaControls.autoSchedule ? 'on' : 'off'}`}
-                      onClick={() => toggleIAControl('autoSchedule')}
-                    >
-                      <span className="toggle-os-thumb" />
-                    </button>
-                  </div>
-
-                  <div className="controle-ia-item permitido">
-                    <div className="controle-ia-info">
-                      <DollarSign className="icon" />
-                      <span className="controle-ia-label">Responder valores padrão</span>
-                    </div>
-                    <button 
-                      className={`toggle-os ${iaControls.sendPrices ? 'on' : 'off'}`}
-                      onClick={() => toggleIAControl('sendPrices')}
-                    >
-                      <span className="toggle-os-thumb" />
-                    </button>
-                  </div>
-
-                  <div className="controle-ia-item permitido">
-                    <div className="controle-ia-info">
-                      <MapPin className="icon" />
-                      <span className="controle-ia-label">Enviar localização</span>
-                    </div>
-                    <button 
-                      className={`toggle-os ${iaControls.sendLocation ? 'on' : 'off'}`}
-                      onClick={() => toggleIAControl('sendLocation')}
-                    >
-                      <span className="toggle-os-thumb" />
-                    </button>
-                  </div>
-
-                  {/* Controles Bloqueados */}
-                  <div className="controle-ia-item bloqueado">
-                    <div className="controle-ia-info">
-                      <Ban className="icon" />
-                      <span className="controle-ia-label">Fechar contratos</span>
-                    </div>
-                    <button 
-                      className={`toggle-os ${iaControls.closeContracts ? 'on' : 'off'}`}
-                      onClick={() => toggleIAControl('closeContracts')}
-                      disabled
-                    >
-                      <span className="toggle-os-thumb" />
-                    </button>
-                  </div>
-
-                  <div className="controle-ia-item bloqueado">
-                    <div className="controle-ia-info">
-                      <Ban className="icon" />
-                      <span className="controle-ia-label">Prometer fora da capacidade</span>
-                    </div>
-                    <button 
-                      className={`toggle-os ${iaControls.promiseOutsideCapacity ? 'on' : 'off'}`}
-                      onClick={() => toggleIAControl('promiseOutsideCapacity')}
-                      disabled
-                    >
-                      <span className="toggle-os-thumb" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* AÇÕES */}
-              <div className="secao-os">
-                <button 
-                  className="btn-acao-secundaria"
-                  onClick={() => setShowDisconnectConfirm(true)}
-                >
-                  <XCircle className="icon" />
-                  <span>Desconectar Conta</span>
-                </button>
-
-                {showDisconnectConfirm && (
-                  <div className="confirmacao-os">
-                    <div className="confirmacao-os-texto">
-                      <AlertTriangle className="icon" />
-                      <span>IA parará de responder. Confirmar?</span>
-                    </div>
-                    <div className="confirmacao-os-acoes">
-                      <button 
-                        className="btn-confirmar-cancelar"
-                        onClick={() => setShowDisconnectConfirm(false)}
-                      >
-                        Não
-                      </button>
-                      <button 
-                        className="btn-confirmar-sim"
-                        onClick={handleDisconnect}
-                        disabled={loading}
-                      >
-                        {loading ? 'Aguarde...' : 'Sim'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* BOTÃO DE INTERVENÇÃO RÁPIDA (FIXO NO RODAPÉ) */}
-        {isConnected && (
-          <button 
-            className="btn-intervencao-rapida"
-            onClick={handleAssumeConversation}
-          >
-            <Hand className="icon" />
-            <span>Assumir Conversa Agora</span>
-          </button>
+            
+            <h1 style={{ 
+              fontSize: '24px', 
+              fontWeight: 500, 
+              color: '#000', 
+              marginBottom: '12px',
+              letterSpacing: '-0.02em',
+              margin: '0 0 12px 0'
+            }}>
+              Sistema ativo
+            </h1>
+            
+            <p style={{ 
+              fontSize: '16px', 
+              color: '#666', 
+              lineHeight: '1.5',
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              margin: 0
+            }}>
+              Secretária automática operacional
+            </p>
+          </div>
         )}
       </div>
 
       <Dock />
+      
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </>
   );
 };

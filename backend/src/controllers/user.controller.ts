@@ -372,6 +372,106 @@ export class UserController {
   }
 
   /**
+   * POST /usuarios/create-funcionario - Cria funcionário com login Firebase Auth
+   */
+  static async createFuncionario(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password, name, companyId, role } = req.body;
+
+      // Validações
+      if (!email || !password || !name || !companyId) {
+        res.status(400).json({
+          success: false,
+          error: 'Email, senha, nome e companyId são obrigatórios',
+          code: 2001,
+        });
+        return;
+      }
+
+      if (password.length < 6) {
+        res.status(400).json({
+          success: false,
+          error: 'Senha deve ter no mínimo 6 caracteres',
+          code: 2001,
+        });
+        return;
+      }
+
+      // Verificar permissão (apenas owner e admin_platform)
+      if (req.auth?.role !== 'owner' && req.auth?.role !== 'admin_platform') {
+        res.status(403).json({
+          success: false,
+          error: 'Apenas donos de empresa e administradores podem criar funcionários',
+          code: 1003,
+        });
+        return;
+      }
+
+      // Verificar se owner está criando para sua própria empresa
+      if (req.auth?.role === 'owner' && companyId !== req.auth.companyId) {
+        res.status(403).json({
+          success: false,
+          error: 'Você só pode criar funcionários para sua própria empresa',
+          code: 1003,
+        });
+        return;
+      }
+
+      // Importar AuthService
+      const { AuthService } = require('../services/auth.service');
+
+      // Criar usuário no Firebase Auth e Firestore
+      const user = await AuthService.createUser(email, password, {
+        name,
+        companyId,
+        role: role || 'user',
+        permissions: [],
+        active: true,
+      });
+
+      // Registrar log
+      await LogService.logCriticalChange(
+        req.auth!.userId,
+        companyId,
+        'Criação de funcionário com login',
+        {
+          funcionarioId: user.id,
+          funcionarioName: name,
+          funcionarioEmail: email,
+        }
+      );
+
+      res.status(201).json({
+        success: true,
+        data: {
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        message: 'Funcionário criado com sucesso. Login habilitado.',
+      });
+    } catch (error: any) {
+      console.error('Erro ao criar funcionário:', error);
+      
+      // Mensagens de erro específicas do Firebase
+      let errorMessage = 'Erro ao criar funcionário';
+      if (error.message?.includes('email-already-in-use') || error.message?.includes('already exists')) {
+        errorMessage = 'Este email já está cadastrado no sistema';
+      } else if (error.message?.includes('invalid-email')) {
+        errorMessage = 'Email inválido';
+      } else if (error.message?.includes('weak-password')) {
+        errorMessage = 'Senha muito fraca';
+      }
+
+      res.status(500).json({
+        success: false,
+        error: errorMessage,
+        message: error.message,
+      });
+    }
+  }
+
+  /**
    * PATCH /usuarios/:id/permissions - Atualiza permissões do usuário
    */
   static async updatePermissions(req: Request, res: Response): Promise<void> {

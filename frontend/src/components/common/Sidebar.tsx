@@ -32,7 +32,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', roles: ['admin_platform', 'owner', 'user'] },
   { label: 'Trabalhos', icon: Package, path: '/trabalhos', roles: ['admin_platform', 'owner', 'user'] },
-  { label: 'Agendamentos', icon: Calendar, path: '/agendamentos', roles: ['admin_platform', 'owner', 'user'] },
+  { label: 'Agendamentos', icon: Calendar, path: '/agenda', roles: ['admin_platform', 'owner', 'user'] },
   { label: 'Funcionários', icon: Users, path: '/funcionarios', roles: ['admin_platform', 'owner', 'user'] },
   { label: 'Relatórios', icon: FileText, path: '/relatorios', roles: ['admin_platform', 'owner', 'user'] },
   { label: 'WhatsApp', icon: MessageSquare, path: '/whatsapp', roles: ['admin_platform', 'owner'] },
@@ -133,15 +133,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ userRole, isOpen = false, onCl
         <div className="sidebar-footer">
           <div 
             className="version-info"
-            title="Última atualização: 28/01/2026"
+            title="Última atualização: 29/01/2026 - Sistema de Promessas Operacionais Completo"
           >
             {!isCollapsed ? (
               <>
                 <span className="version-label">Versão</span>
-                <span className="version-number">Alpha 4.1.0</span>
+                <span className="version-number">Alpha 8.0.0</span>
               </>
             ) : (
-              <span className="version-number-collapsed">v4.1.0</span>
+              <span className="version-number-collapsed">v8.0.0</span>
             )}
           </div>
         </div>

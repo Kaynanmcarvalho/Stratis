@@ -38,9 +38,26 @@ export class WhatsAppService {
 
   /**
    * Conecta ao WhatsApp e gera QR Code
+   * Se já existir sessão ativa, retorna erro
    */
   static async connect(companyId: string): Promise<{ qrCode: string; sessionId: string }> {
     try {
+      // Verificar se já existe sessão ativa
+      const existingSession = await this.getActiveSession(companyId);
+      if (existingSession) {
+        throw new Error('Já existe uma sessão ativa. Desconecte primeiro antes de criar uma nova.');
+      }
+
+      // Tentar recuperar sessão salva
+      const recoveredSession = await this.recoverSession(companyId);
+      if (recoveredSession) {
+        console.log('✅ Sessão recuperada com sucesso!');
+        return { qrCode: '', sessionId: recoveredSession.sessionId };
+      }
+
+      // Limpar sessões antigas primeiro
+      await this.cleanOldSessions(companyId);
+
       const sessionId = `session_${companyId}_${Date.now()}`;
       const authPath = path.join(this.authDir, sessionId);
 
@@ -50,6 +67,7 @@ export class WhatsAppService {
       }
 
       let qrCodeData = '';
+      let qrCount = 0;
       let resolveQR: (value: string) => void;
       const qrPromise = new Promise<string>((resolve) => {
         resolveQR = resolve;
@@ -59,18 +77,27 @@ export class WhatsAppService {
       const { state, saveCreds } = await useMultiFileAuthState(authPath);
       const { version } = await fetchLatestBaileysVersion();
 
-      // Criar socket do WhatsApp
+      // Criar socket do WhatsApp com configurações otimizadas
       const sock = makeWASocket({
         version,
         auth: {
           creds: state.creds,
-          keys: makeCacheableSignalKeyStore(state.keys, {
-            level: 'silent',
-            child: () => ({ level: 'silent' } as any)
-          } as any),
+          keys: makeCacheableSignalKeyStore(state.keys, console as any),
         },
         printQRInTerminal: false,
-        browser: ['Straxis', 'Chrome', '1.0.0'],
+        browser: ['Straxis SaaS', 'Chrome', '120.0.0'],
+        syncFullHistory: false,
+        markOnlineOnConnect: true,
+        generateHighQualityLinkPreview: false,
+        defaultQueryTimeoutMs: 60000,
+        connectTimeoutMs: 60000,
+        keepAliveIntervalMs: 30000,
+        emitOwnEvents: false,
+        fireInitQueries: true,
+        getMessage: async () => undefined,
+        shouldIgnoreJid: (jid: string) => jid.endsWith('@broadcast'),
+        retryRequestDelayMs: 250,
+        maxMsgRetryCount: 5,
       });
 
       // Handler para QR Code
@@ -78,8 +105,14 @@ export class WhatsAppService {
         const { connection, lastDisconnect, qr } = update;
 
         if (qr) {
+          qrCount++;
           qrCodeData = qr;
-          resolveQR(qr);
+          console.log(`📱 QR Code gerado (${qrCount})`);
+          
+          // Resolver promise apenas no primeiro QR
+          if (qrCount === 1) {
+            resolveQR(qr);
+          }
           
           // Atualizar QR no Firestore
           const sessions = await FirestoreService.querySubcollection(
@@ -96,20 +129,30 @@ export class WhatsAppService {
               companyId,
               'whatsappSessions',
               session.id,
-              { qrCode: qr, lastActivity: new Date() }
+              { 
+                qrCode: qr, 
+                lastActivity: new Date(),
+                qrCount 
+              }
             );
           }
         }
 
         if (connection === 'close') {
-          const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+          const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+          const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
           
-          if (shouldReconnect) {
-            console.log('Conexão fechada, reconectando...');
-            // Não reconectar automaticamente, deixar usuário decidir
-          } else {
-            // Limpar sessão
-            this.sessions.delete(sessionId);
+          console.log(`❌ Conexão fechada. Status: ${statusCode}, Reconectar: ${shouldReconnect}`);
+          
+          if (statusCode === 515) {
+            console.error('⚠️ Erro 515: Número bloqueado ou banido pelo WhatsApp');
+            await this.handleError515(companyId, sessionId);
+          }
+          
+          // Limpar sessão
+          this.sessions.delete(sessionId);
+          
+          if (!shouldReconnect) {
             await this.gracefulDisconnect(companyId);
           }
         } else if (connection === 'open') {
@@ -133,7 +176,8 @@ export class WhatsAppService {
               { 
                 connected: true, 
                 qrCode: null,
-                lastActivity: new Date() 
+                lastActivity: new Date(),
+                connectedAt: new Date()
               }
             );
           }
@@ -176,6 +220,7 @@ export class WhatsAppService {
           connected: false,
           lastActivity: new Date(),
           createdAt: new Date(),
+          qrCount: 0,
         }
       );
 
@@ -196,6 +241,204 @@ export class WhatsAppService {
     } catch (error) {
       console.error('Erro ao conectar WhatsApp:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Verifica se existe sessão ativa
+   */
+  private static async getActiveSession(companyId: string): Promise<ActiveSession | null> {
+    // Verificar em memória
+    for (const [_, session] of this.sessions) {
+      if (session.companyId === companyId) {
+        return session;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Tenta recuperar sessão salva
+   */
+  private static async recoverSession(companyId: string): Promise<{ sessionId: string } | null> {
+    try {
+      console.log('🔍 Procurando sessão salva...');
+      
+      // Procurar diretórios de sessão
+      if (!fs.existsSync(this.authDir)) {
+        return null;
+      }
+
+      const files = fs.readdirSync(this.authDir);
+      const sessionDirs = files.filter(f => f.startsWith(`session_${companyId}_`));
+      
+      if (sessionDirs.length === 0) {
+        console.log('❌ Nenhuma sessão salva encontrada');
+        return null;
+      }
+
+      // Pegar a sessão mais recente
+      const latestSession = sessionDirs.sort().reverse()[0];
+      const authPath = path.join(this.authDir, latestSession);
+      
+      console.log(`📂 Tentando recuperar: ${latestSession}`);
+
+      // Tentar carregar credenciais
+      const { state, saveCreds } = await useMultiFileAuthState(authPath);
+      
+      // Verificar se tem credenciais válidas
+      if (!state.creds || !state.creds.me) {
+        console.log('❌ Credenciais inválidas');
+        return null;
+      }
+
+      const { version } = await fetchLatestBaileysVersion();
+
+      // Criar socket com credenciais salvas
+      const sock = makeWASocket({
+        version,
+        auth: {
+          creds: state.creds,
+          keys: makeCacheableSignalKeyStore(state.keys, console as any),
+        },
+        printQRInTerminal: false,
+        browser: ['Straxis SaaS', 'Chrome', '120.0.0'],
+        syncFullHistory: false,
+        markOnlineOnConnect: true,
+        generateHighQualityLinkPreview: false,
+        getMessage: async () => undefined,
+      });
+
+      // Aguardar conexão
+      const connected = await new Promise<boolean>((resolve) => {
+        const timeout = setTimeout(() => resolve(false), 10000); // 10s timeout
+
+        sock.ev.on('connection.update', async (update) => {
+          const { connection } = update;
+          
+          if (connection === 'open') {
+            clearTimeout(timeout);
+            resolve(true);
+          } else if (connection === 'close') {
+            clearTimeout(timeout);
+            resolve(false);
+          }
+        });
+      });
+
+      if (!connected) {
+        console.log('❌ Não foi possível reconectar');
+        return null;
+      }
+
+      // Armazenar sessão recuperada
+      this.sessions.set(latestSession, {
+        socket: sock,
+        sessionId: latestSession,
+        companyId,
+      });
+
+      // Atualizar Firestore
+      await FirestoreService.createSubcollectionDoc(
+        'companies',
+        companyId,
+        'whatsappSessions',
+        {
+          sessionId: latestSession,
+          qrCode: null,
+          connected: true,
+          lastActivity: new Date(),
+          createdAt: new Date(),
+          recovered: true,
+        }
+      );
+
+      // Handler para credenciais
+      sock.ev.on('creds.update', saveCreds);
+
+      // Handler para mensagens
+      sock.ev.on('messages.upsert', async ({ messages }) => {
+        for (const msg of messages) {
+          if (!msg.key.fromMe && msg.message) {
+            const from = msg.key.remoteJid || '';
+            const text = msg.message.conversation || 
+                        msg.message.extendedTextMessage?.text || '';
+            
+            if (text) {
+              await this.handleIncomingMessage(companyId, from, text);
+            }
+          }
+        }
+      });
+
+      console.log('✅ Sessão recuperada com sucesso!');
+      return { sessionId: latestSession };
+    } catch (error) {
+      console.error('Erro ao recuperar sessão:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Limpa sessões antigas e arquivos de autenticação
+   */
+  private static async cleanOldSessions(companyId: string): Promise<void> {
+    try {
+      console.log('🧹 Limpando sessões antigas...');
+      
+      // Limpar sessões ativas em memória
+      for (const [sessionId, session] of this.sessions) {
+        if (session.companyId === companyId) {
+          try {
+            await session.socket.logout();
+          } catch (err) {
+            console.error('Erro ao deslogar sessão:', err);
+          }
+          this.sessions.delete(sessionId);
+        }
+      }
+
+      // Limpar diretórios de autenticação antigos (mais de 1 hora)
+      if (fs.existsSync(this.authDir)) {
+        const files = fs.readdirSync(this.authDir);
+        const oneHourAgo = Date.now() - (60 * 60 * 1000);
+        
+        for (const file of files) {
+          if (file.startsWith(`session_${companyId}_`)) {
+            const filePath = path.join(this.authDir, file);
+            const stats = fs.statSync(filePath);
+            
+            if (stats.mtimeMs < oneHourAgo) {
+              console.log(`🗑️ Removendo sessão antiga: ${file}`);
+              fs.rmSync(filePath, { recursive: true, force: true });
+            }
+          }
+        }
+      }
+
+      console.log('✅ Limpeza concluída');
+    } catch (error) {
+      console.error('Erro ao limpar sessões antigas:', error);
+    }
+  }
+
+  /**
+   * Handler para erro 515 (número bloqueado)
+   */
+  private static async handleError515(companyId: string, sessionId: string): Promise<void> {
+    try {
+      await LogService.logWhatsApp(companyId, 'Erro 515 - Número bloqueado', {
+        sessionId,
+        message: 'O número pode estar temporariamente bloqueado pelo WhatsApp. Aguarde 15-30 minutos antes de tentar novamente.',
+      });
+
+      // Limpar sessão
+      const authPath = path.join(this.authDir, sessionId);
+      if (fs.existsSync(authPath)) {
+        fs.rmSync(authPath, { recursive: true, force: true });
+      }
+    } catch (error) {
+      console.error('Erro ao processar erro 515:', error);
     }
   }
 

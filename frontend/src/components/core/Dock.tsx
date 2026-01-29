@@ -25,11 +25,11 @@ interface DockItem {
 const dockItems: DockItem[] = [
   { id: 'dashboard', label: 'Início', icon: LayoutDashboard, path: '/dashboard' },
   { id: 'trabalhos', label: 'Trabalhos', icon: Package, path: '/trabalhos' },
-  { id: 'agendamentos', label: 'Agenda', icon: Calendar, path: '/agendamentos' },
+  { id: 'agendamentos', label: 'Agenda', icon: Calendar, path: '/agenda' },
   { id: 'funcionarios', label: 'Equipe', icon: Users, path: '/funcionarios' },
   { id: 'relatorios', label: 'Relatórios', icon: FileText, path: '/relatorios' },
   { id: 'clientes', label: 'Clientes', icon: UserCircle, path: '/clientes' },
-  { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, path: '/whatsapp' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, path: '/whatsapp2' },
   { id: 'ia', label: 'IA', icon: Brain, path: '/ia-config' },
   { id: 'empresas', label: 'Empresas', icon: Building2, path: '/empresas' },
   { id: 'logs', label: 'Logs', icon: ScrollText, path: '/logs' },

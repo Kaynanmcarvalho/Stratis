@@ -12,6 +12,7 @@ import AgendamentosPageCore from './pages/AgendamentosPageCore';
 import FuncionariosPage from './pages/FuncionariosPage';
 import RelatoriosPage from './pages/RelatoriosPage';
 import ClientesPage from './pages/ClientesPage';
+import AgendaPage from './pages/AgendaPage';
 import UsuariosPage from './pages/UsuariosPage';
 import EmpresasPage from './pages/EmpresasPage';
 import WhatsAppPageCore from './pages/WhatsAppPageCore';
@@ -34,12 +35,13 @@ function App() {
             <Route path="test" element={<TestPage />} />
             <Route path="trabalhos" element={<TrabalhosPageCore />} />
             <Route path="agendamentos" element={<AgendamentosPageCore />} />
+            <Route path="agenda" element={<AgendaPage />} />
             <Route path="funcionarios" element={<FuncionariosPage />} />
             <Route path="relatorios" element={<RelatoriosPage />} />
             <Route path="clientes" element={<ClientesPage />} />
             <Route path="usuarios" element={<UsuariosPage />} />
             <Route path="empresas" element={<EmpresasPage />} />
-            <Route path="whatsapp" element={<WhatsAppPageCore />} />
+            <Route path="whatsapp2" element={<WhatsAppPageCore />} />
             <Route path="ia-config" element={<IAConfigPageCore />} />
             <Route path="logs" element={<LogsPage />} />
           </Route>

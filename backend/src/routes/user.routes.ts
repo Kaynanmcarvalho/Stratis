@@ -31,6 +31,13 @@ const requireAdminOrOwner = (req: any, res: any, next: any) => {
 router.get('/unassigned/list', requireAdminPlatform, UserController.listUnassigned);
 
 /**
+ * POST /api/usuarios/create-funcionario
+ * Cria funcionário com login Firebase Auth
+ * IMPORTANTE: Esta rota deve vir ANTES de /:id
+ */
+router.post('/create-funcionario', requireAdminOrOwner, UserController.createFuncionario);
+
+/**
  * GET /api/usuarios
  * Lista usuários da empresa
  */

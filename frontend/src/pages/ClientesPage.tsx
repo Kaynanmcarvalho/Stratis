@@ -15,7 +15,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Dock } from '../components/core/Dock';
-import './CorePages.css';
 import './ClientesPage.css';
 
 interface Cliente {

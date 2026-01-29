@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Brain, Zap, DollarSign, Shield, Settings } from 'lucide-react';
 import { CoreCard, CoreCardHeader, CoreCardTitle, CoreCardDescription } from '../components/core/CoreCard';
 import { Dock } from '../components/core/Dock';
-import './CorePages.css';
 import './IAConfigPageCore.css';
 
 const IAConfigPageCore: React.FC = () => {
@@ -37,7 +36,7 @@ const IAConfigPageCore: React.FC = () => {
 
   return (
     <>
-      <div className="page-container">
+      <div className="page-container ia-config-container">
         {/* Header */}
         <header className="page-header">
           <div className="header-content">

@@ -1,0 +1,847 @@
+/* ============================================
+   PAINEL DE DECISÃO OPERACIONAL v2.0.0
+   SISTEMA PROPRIETÁRIO PREMIUM
+   FILA DE COMPROMISSOS - AÇÃO DIRETA
+   29/01/2026 - REDESIGN OPERACIONAL
+   ============================================ */
+
+.agenda-hub {
+  background: #FFFFFF !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif !important;
+  color: #000000 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+.page-container.agenda-hub {
+  background: #FFFFFF !important;
+}
+
+/* CABEÇALHO COMPACTO */
+.agenda-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 20px 20px 16px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  background: #FFFFFF !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+.agenda-title-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.agenda-title {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  margin: 0 !important;
+  letter-spacing: -0.7px !important;
+  line-height: 1 !important;
+}
+
+.agenda-stats-inline {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.stat-inline {
+  min-width: 22px !important;
+  height: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 7px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.stat-inline.pendente {
+  background: rgba(255, 149, 0, 0.12) !important;
+  color: #FF9500 !important;
+}
+
+.stat-inline.confirmado {
+  background: rgba(52, 199, 89, 0.12) !important;
+  color: #34C759 !important;
+}
+
+.stat-inline.conflito {
+  background: rgba(255, 59, 48, 0.12) !important;
+  color: #FF3B30 !important;
+}
+
+.btn-novo-agendamento {
+  width: 38px !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.3) !important;
+}
+
+.btn-novo-agendamento:hover {
+  transform: scale(1.05) !important;
+}
+
+.btn-novo-agendamento:active {
+  transform: scale(0.95) !important;
+}
+
+.btn-novo-agendamento .icon {
+  width: 19px !important;
+  height: 19px !important;
+  color: #FFFFFF !important;
+  stroke-width: 2.5 !important;
+}
+
+/* BUSCA RÁPIDA */
+.search-container {
+  padding: 14px 20px !important;
+  background: #FFFFFF !important;
+}
+
+.search-wrapper {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  background: #F8F8F8 !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 11px !important;
+  padding: 11px 15px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.search-wrapper:focus-within {
+  background: #FFFFFF !important;
+  border-color: #007AFF !important;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.08) !important;
+}
+
+.search-icon {
+  width: 15px !important;
+  height: 15px !important;
+  color: #8E8E93 !important;
+  margin-right: 9px !important;
+  flex-shrink: 0 !important;
+  stroke-width: 2 !important;
+}
+
+.search-input {
+  flex: 1 !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  color: #000000 !important;
+  background: transparent !important;
+}
+
+.search-input::placeholder {
+  color: #8E8E93 !important;
+}
+
+.search-clear {
+  width: 21px !important;
+  height: 21px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.search-clear:hover {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.search-clear .icon {
+  width: 11px !important;
+  height: 11px !important;
+  color: #666666 !important;
+}
+
+/* FILTROS COMPACTOS */
+.filtros-status {
+  display: flex !important;
+  gap: 6px !important;
+  padding: 0 20px 14px !important;
+  background: #FFFFFF !important;
+  overflow-x: auto !important;
+}
+
+.filtros-status::-webkit-scrollbar {
+  display: none !important;
+}
+
+.filtro-btn {
+  padding: 7px 13px !important;
+  background: transparent !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #666666 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  white-space: nowrap !important;
+  border-radius: 9px !important;
+}
+
+.filtro-btn:hover {
+  color: #000000 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.filtro-btn.active {
+  color: #FFFFFF !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+/* FILA OPERACIONAL */
+.agenda-fila {
+  padding: 0 20px 140px !important;
+  background: #FFFFFF !important;
+}
+
+.periodo-section {
+  margin-bottom: 24px !important;
+}
+
+.periodo-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 0 4px 10px !important;
+}
+
+.periodo-icon {
+  width: 16px !important;
+  height: 16px !important;
+  color: #8E8E93 !important;
+  stroke-width: 2 !important;
+}
+
+.periodo-label {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  letter-spacing: -0.3px !important;
+}
+
+.periodo-count {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #8E8E93 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.compromissos-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+/* CARTÃO DE COMPROMISSO - AÇÃO DIRETA */
+.compromisso-card {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  padding: 16px !important;
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 14px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.compromisso-card:active {
+  transform: scale(0.99) !important;
+}
+
+/* Estados visuais sutis */
+.compromisso-card.pendente {
+  border-left: 3px solid #FF9500 !important;
+}
+
+.compromisso-card.confirmado {
+  border-left: 3px solid #34C759 !important;
+}
+
+.compromisso-card.em_execucao {
+  border-left: 3px solid #007AFF !important;
+  background: rgba(0, 122, 255, 0.02) !important;
+}
+
+.compromisso-card.conflito {
+  border-color: rgba(255, 59, 48, 0.2) !important;
+  background: rgba(255, 59, 48, 0.02) !important;
+}
+
+/* Header: Cliente + Horário */
+.compromisso-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.compromisso-cliente {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  margin: 0 !important;
+  letter-spacing: -0.4px !important;
+  line-height: 1.2 !important;
+  flex: 1 !important;
+}
+
+.compromisso-horario {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 5px 10px !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-radius: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+.compromisso-horario .icon {
+  width: 13px !important;
+  height: 13px !important;
+  color: #666666 !important;
+  stroke-width: 2 !important;
+}
+
+.compromisso-horario span {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Detalhes Operacionais */
+.compromisso-detalhes {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+.detalhe-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.detalhe-item .icon {
+  width: 13px !important;
+  height: 13px !important;
+  color: #8E8E93 !important;
+  stroke-width: 2 !important;
+  flex-shrink: 0 !important;
+}
+
+.detalhe-item span {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #3C3C43 !important;
+}
+
+/* Badges e Alertas */
+.compromisso-badges {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.badge-ia {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 4px 8px !important;
+  background: rgba(88, 86, 214, 0.08) !important;
+  border-radius: 6px !important;
+}
+
+.badge-ia .icon {
+  width: 11px !important;
+  height: 11px !important;
+  color: #5856D6 !important;
+  stroke-width: 2 !important;
+}
+
+.badge-ia span {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #5856D6 !important;
+  letter-spacing: -0.05px !important;
+}
+
+.badge-conflito {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 5px 9px !important;
+  background: rgba(255, 59, 48, 0.1) !important;
+  border: 1px solid rgba(255, 59, 48, 0.2) !important;
+  border-radius: 7px !important;
+}
+
+.badge-conflito .icon {
+  width: 12px !important;
+  height: 12px !important;
+  color: #FF3B30 !important;
+  stroke-width: 2 !important;
+}
+
+.badge-conflito span {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #FF3B30 !important;
+}
+
+/* Ações Diretas - CRÍTICO */
+.compromisso-acoes {
+  display: flex !important;
+  gap: 8px !important;
+  padding-top: 4px !important;
+}
+
+.acao-btn {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  padding: 11px 14px !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.2px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 44px !important;
+}
+
+.acao-btn:active {
+  transform: scale(0.97) !important;
+}
+
+.acao-btn .icon {
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
+  stroke-width: 2 !important;
+}
+
+.acao-btn.confirmar {
+  background: #34C759 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.25) !important;
+}
+
+.acao-btn.confirmar:hover {
+  box-shadow: 0 3px 10px rgba(52, 199, 89, 0.3) !important;
+}
+
+.acao-btn.rejeitar {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #FF3B30 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.acao-btn.rejeitar:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+.acao-btn.iniciar {
+  background: #007AFF !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25) !important;
+}
+
+.acao-btn.iniciar:hover {
+  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.3) !important;
+}
+
+/* Status Em Execução */
+.compromisso-status-execucao {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 10px !important;
+  background: rgba(0, 122, 255, 0.08) !important;
+  border-radius: 10px !important;
+}
+
+.compromisso-status-execucao .icon {
+  width: 15px !important;
+  height: 15px !important;
+  color: #007AFF !important;
+  stroke-width: 2 !important;
+}
+
+.compromisso-status-execucao span {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #007AFF !important;
+}
+
+/* EMPTY STATE */
+.empty-state-agenda {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 80px 24px !important;
+  text-align: center !important;
+}
+
+.empty-icon {
+  width: 70px !important;
+  height: 70px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #F8F8F8 !important;
+  border-radius: 18px !important;
+  margin-bottom: 20px !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+.empty-icon .icon {
+  width: 36px !important;
+  height: 36px !important;
+  color: #999999 !important;
+  stroke-width: 1.5 !important;
+}
+
+.empty-titulo {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  margin: 0 0 6px 0 !important;
+  letter-spacing: -0.4px !important;
+}
+
+.empty-descricao {
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  color: #666666 !important;
+  margin: 0 0 28px 0 !important;
+  max-width: 300px !important;
+  line-height: 1.4 !important;
+}
+
+.btn-empty-action {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 13px 22px !important;
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 11px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.3) !important;
+}
+
+.btn-empty-action:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35) !important;
+}
+
+.btn-empty-action .icon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: 2000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  animation: fadeIn 0.2s ease !important;
+}
+
+.modal-content {
+  width: 100% !important;
+  max-width: 460px !important;
+  max-height: 90vh !important;
+  background: #FFFFFF !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+  overflow: hidden !important;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 20px 20px 16px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+.modal-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  margin: 0 !important;
+  letter-spacing: -0.4px !important;
+}
+
+.modal-close {
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #F8F8F8 !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 9px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.modal-close:hover {
+  background: #EEEEEE !important;
+}
+
+.modal-close .icon {
+  width: 16px !important;
+  height: 16px !important;
+  color: #000000 !important;
+}
+
+.modal-body {
+  padding: 20px !important;
+  overflow-y: auto !important;
+  max-height: calc(90vh - 90px) !important;
+}
+
+/* FORMULÁRIO */
+.agendamento-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.form-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+}
+
+.form-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.form-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  letter-spacing: -0.15px !important;
+}
+
+.form-input {
+  padding: 13px 15px !important;
+  background: #F8F8F8 !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 11px !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  color: #000000 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  outline: none !important;
+}
+
+.form-input:focus {
+  background: #FFFFFF !important;
+  border-color: #007AFF !important;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.08) !important;
+}
+
+.form-input::placeholder {
+  color: #8E8E93 !important;
+}
+
+.tipo-selector {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+.tipo-option {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 14px !important;
+  background: #F5F5F7 !important;
+  border: 1.5px solid transparent !important;
+  border-radius: 11px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #3C3C43 !important;
+}
+
+.tipo-option:hover {
+  background: #EBEBED !important;
+}
+
+.tipo-option:active {
+  transform: scale(0.98) !important;
+}
+
+.tipo-option.active {
+  background: rgba(0, 122, 255, 0.1) !important;
+  border-color: #007AFF !important;
+  color: #007AFF !important;
+}
+
+.tipo-option .icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-salvar-agendamento {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  padding: 15px 20px !important;
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 11px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  margin-top: 6px !important;
+  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.3) !important;
+}
+
+.btn-salvar-agendamento:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35) !important;
+}
+
+.btn-salvar-agendamento:active {
+  transform: translateY(0) !important;
+}
+
+.btn-salvar-agendamento .icon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+  .agenda-header {
+    padding: 18px 18px 14px !important;
+  }
+  
+  .agenda-title {
+    font-size: 24px !important;
+  }
+  
+  .search-container {
+    padding: 12px 18px !important;
+  }
+  
+  .filtros-status {
+    padding: 0 18px 12px !important;
+  }
+  
+  .agenda-fila {
+    padding: 0 18px 140px !important;
+  }
+  
+  .compromisso-card {
+    padding: 14px !important;
+  }
+  
+  .compromisso-cliente {
+    font-size: 17px !important;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.compromisso-card {
+  animation: fadeInCard 0.25s ease !important;
+}
+
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

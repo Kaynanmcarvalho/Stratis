@@ -2,6 +2,13 @@ import { apiService } from './api.service';
 
 export const whatsappService = {
   /**
+   * Verifica se o serviço está rodando
+   */
+  async checkHealth(): Promise<void> {
+    await apiService.get('/whatsapp/health');
+  },
+
+  /**
    * Conecta ao WhatsApp
    */
   async connect(): Promise<{ qrCode: string; sessionId: string }> {

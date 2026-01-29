@@ -2,6 +2,19 @@
    IA CONFIG PAGE CORE - STRAXIS DESIGN
    ============================================ */
 
+/* Page Container */
+.ia-config-container {
+  padding: var(--space-4) var(--space-4) 100px var(--space-4);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .ia-config-container {
+    padding: var(--space-6) var(--space-6) 100px var(--space-6);
+  }
+}
+
 /* Stats Grid */
 .stats-grid {
   display: grid;
