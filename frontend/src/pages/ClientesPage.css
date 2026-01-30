@@ -911,3 +911,117 @@
     transform: translateY(0);
   }
 }
+
+
+/* ============================================
+   NOVOS ESTILOS - ALPHA 10.2.0
+   GESTÃO COMPLETA DE CLIENTES
+   ============================================ */
+
+/* Botões de Gestão no Perfil */
+.perfil-gestao {
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: 24px !important;
+  padding-top: 24px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+.btn-gestao {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 14px 20px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+  background: #F8F8F8 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-gestao:hover {
+  background: #EFEFEF !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn-gestao:active {
+  transform: translateY(0) !important;
+}
+
+.btn-gestao:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.btn-gestao.editar {
+  color: #007AFF !important;
+}
+
+.btn-gestao.desativar {
+  color: #FF3B30 !important;
+}
+
+.btn-gestao .icon {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Botão Histórico */
+.btn-acao-perfil.historico {
+  background: linear-gradient(135deg, #5856D6, #4A47C4) !important;
+}
+
+/* Form de Edição */
+.form-acoes {
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: 24px !important;
+}
+
+.btn-cancelar {
+  flex: 1 !important;
+  padding: 14px 20px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+  background: #F8F8F8 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #666666 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-cancelar:hover {
+  background: #EFEFEF !important;
+}
+
+/* Textarea */
+.form-input[rows] {
+  resize: vertical !important;
+  min-height: 80px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+}
+
+/* Info Item Full Width */
+.perfil-info-item.full-width {
+  grid-column: 1 / -1 !important;
+}
+
+.perfil-info-item.full-width .info-value {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* Loading State */
+.btn-salvar-cliente:disabled,
+.btn-gestao:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}

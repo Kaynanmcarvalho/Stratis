@@ -17,6 +17,9 @@ import './FuncionariosPageCore.css';
 import { db } from '../config/firebase.config';
 import { collection, addDoc, query, where, getDocs, updateDoc, doc, orderBy, Timestamp } from 'firebase/firestore';
 import { useToast } from '../hooks/useToast';
+import { useAuth } from '../contexts/AuthContext';
+import { validarPonto, calcularHorasTrabalhadas as calcularHoras } from '../utils/pontoValidation';
+import { registrarPonto } from '../services/pontoService';
 
 type PontoStatus = 'trabalhando' | 'almoco' | 'deslocamento' | 'fora';
 type PontoTipo = 'entrada' | 'almoco_saida' | 'almoco_volta' | 'saida';
@@ -76,6 +79,11 @@ const FuncionariosPageCore: React.FC = () => {
   });
 
   const toast = useToast();
+  const { user } = useAuth();
+
+  // Usar companyId e userRole do contexto de autenticação
+  const companyId = user?.companyId || 'dev-company-id';
+  const userRole = (user?.role as 'admin_platform' | 'owner' | 'user') || 'owner';
 
   // Função para abrir modal de confirmação
   const abrirConfirmacao = (
@@ -115,10 +123,6 @@ const FuncionariosPageCore: React.FC = () => {
   const [formEmail, setFormEmail] = useState('');
   const [formSenha, setFormSenha] = useState('');
   const [formConfirmarSenha, setFormConfirmarSenha] = useState('');
-
-  // TODO: Pegar do contexto de autenticação
-  const companyId = 'dev-company-id';
-  const userRole = 'owner' as 'admin_platform' | 'owner' | 'user'; // 'admin_platform' | 'owner' | 'user'
 
   // Carregar funcionários do Firebase
   useEffect(() => {
@@ -309,13 +313,13 @@ const FuncionariosPageCore: React.FC = () => {
       return;
     }
 
-    // Se não passou funcionarioId, usar o usuário logado (TODO: pegar do contexto)
-    const funcId = funcionarioId || funcionarios[0]?.id;
+    // Se não passou funcionarioId, usar o usuário logado do contexto
+    const funcId = funcionarioId || user?.uid;
     
     if (!funcId) {
       toast.error({
         title: 'Erro',
-        message: 'Funcionário não identificado',
+        message: 'Funcionário não identificado. Faça login novamente.',
       });
       return;
     }
@@ -329,34 +333,35 @@ const FuncionariosPageCore: React.FC = () => {
       return;
     }
 
-    // Validar se é o próximo ponto permitido
-    const proximoPermitido = proximoPontoPermitido(funcionario.pontosHoje);
-    if (proximoPermitido !== tipo) {
-      toast.warning({
-        title: 'Atenção',
-        message: `Você deve bater: ${getTipoPontoLabel(proximoPermitido)}`,
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // Gravar ponto no Firebase
-      const pontosRef = collection(db, `companies/${companyId}/pontos`);
-      await addDoc(pontosRef, {
-        funcionarioId: funcId,
+      // Validar ponto usando pontoValidation.ts
+      const validacao = validarPonto(
         tipo,
-        timestamp: Timestamp.fromDate(new Date()),
-        localizacao: {
-          lat: localizacaoAtual.lat,
-          lng: localizacaoAtual.lng,
-          endereco: localizacaoAtual.endereco,
-          timestamp: Timestamp.fromDate(localizacaoAtual.timestamp),
-        },
+        funcionario.pontosHoje,
+        localizacaoAtual
+      );
+
+      if (!validacao.valido) {
+        toast.warning({
+          title: 'Ponto Inválido',
+          message: validacao.erro || 'Não é possível registrar este ponto agora',
+        });
+        
+        // Registrar tentativa inválida para auditoria
+        await registrarTentativaInvalida(funcId, tipo, validacao.erro || 'Validação falhou');
+        return;
+      }
+
+      // Registrar ponto usando pontoService.ts
+      await registrarPonto(
         companyId,
-        createdAt: Timestamp.fromDate(new Date()),
-      });
+        funcId,
+        user?.uid || 'system',
+        tipo,
+        localizacaoAtual
+      );
 
       // Recarregar funcionários
       await carregarFuncionarios();
@@ -366,14 +371,34 @@ const FuncionariosPageCore: React.FC = () => {
         title: 'Sucesso!',
         message: `Ponto batido: ${getTipoPontoLabel(tipo)}`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao bater ponto:', error);
       toast.error({
         title: 'Erro',
-        message: 'Erro ao bater ponto. Tente novamente.',
+        message: error.message || 'Erro ao bater ponto. Tente novamente.',
       });
+      
+      // Registrar tentativa inválida
+      await registrarTentativaInvalida(funcId, tipo, error.message || 'Erro desconhecido');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Registrar tentativa inválida para auditoria
+  const registrarTentativaInvalida = async (funcionarioId: string, tipo: PontoTipo, motivo: string) => {
+    try {
+      const tentativasRef = collection(db, `companies/${companyId}/pontosTentativasInvalidas`);
+      await addDoc(tentativasRef, {
+        funcionarioId,
+        tipo,
+        motivo,
+        timestamp: Timestamp.fromDate(new Date()),
+        companyId,
+        userId: user?.uid || 'system',
+      });
+    } catch (error) {
+      console.error('Erro ao registrar tentativa inválida:', error);
     }
   };
 
@@ -665,33 +690,8 @@ const FuncionariosPageCore: React.FC = () => {
   };
 
   const calcularHorasTrabalhadas = (pontos: Ponto[]): number => {
-    if (pontos.length < 2) return 0;
-    
-    let totalMinutos = 0;
-    
-    // Entrada até saída almoço
-    const entrada = pontos.find(p => p.tipo === 'entrada');
-    const almocoSaida = pontos.find(p => p.tipo === 'almoco_saida');
-    
-    if (entrada && almocoSaida) {
-      const diff = almocoSaida.timestamp.getTime() - entrada.timestamp.getTime();
-      totalMinutos += diff / (1000 * 60);
-    }
-    
-    // Volta almoço até saída final
-    const almocoVolta = pontos.find(p => p.tipo === 'almoco_volta');
-    const saida = pontos.find(p => p.tipo === 'saida');
-    
-    if (almocoVolta && saida) {
-      const diff = saida.timestamp.getTime() - almocoVolta.timestamp.getTime();
-      totalMinutos += diff / (1000 * 60);
-    } else if (almocoVolta) {
-      // Ainda trabalhando
-      const diff = new Date().getTime() - almocoVolta.timestamp.getTime();
-      totalMinutos += diff / (1000 * 60);
-    }
-    
-    return totalMinutos / 60; // Retorna em horas
+    // Usar função de pontoValidation.ts que já tem a lógica correta
+    return calcularHoras(pontos);
   };
 
   const calcularDiaria = (funcionario: Funcionario): number => {

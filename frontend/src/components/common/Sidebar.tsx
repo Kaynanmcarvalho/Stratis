@@ -11,6 +11,7 @@ import {
   UserCog,
   Building2,
   ScrollText,
+  Shield,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -34,9 +35,11 @@ const menuItems: MenuItem[] = [
   { label: 'Trabalhos', icon: Package, path: '/trabalhos', roles: ['admin_platform', 'owner', 'user'] },
   { label: 'Agendamentos', icon: Calendar, path: '/agenda', roles: ['admin_platform', 'owner', 'user'] },
   { label: 'Funcionários', icon: Users, path: '/funcionarios', roles: ['admin_platform', 'owner', 'user'] },
+  { label: 'Fechamento', icon: FileText, path: '/fechamento/historico', roles: ['admin_platform', 'owner'] },
   { label: 'Relatórios', icon: FileText, path: '/relatorios', roles: ['admin_platform', 'owner', 'user'] },
   { label: 'WhatsApp', icon: MessageSquare, path: '/whatsapp', roles: ['admin_platform', 'owner'] },
   { label: 'IA', icon: Brain, path: '/ia-config', roles: ['admin_platform', 'owner'] },
+  { label: 'Cargos', icon: Shield, path: '/cargos', roles: ['admin_platform', 'owner'] },
   { label: 'Usuários', icon: UserCog, path: '/usuarios', roles: ['admin_platform', 'owner'] },
   { label: 'Empresas', icon: Building2, path: '/empresas', roles: ['admin_platform'] },
   { label: 'Logs', icon: ScrollText, path: '/logs', roles: ['admin_platform', 'owner'] }
@@ -133,15 +136,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ userRole, isOpen = false, onCl
         <div className="sidebar-footer">
           <div 
             className="version-info"
-            title="Última atualização: 29/01/2026 - Sistema de Promessas Operacionais Completo"
+            title="Última atualização: 29/01/2026 - Redesign Premium Relatórios (MAJOR)"
           >
             {!isCollapsed ? (
               <>
                 <span className="version-label">Versão</span>
-                <span className="version-number">Alpha 8.0.0</span>
+                <span className="version-number">Alpha 15.0.0</span>
               </>
             ) : (
-              <span className="version-number-collapsed">v8.0.0</span>
+              <span className="version-number-collapsed">v15.0.0</span>
             )}
           </div>
         </div>

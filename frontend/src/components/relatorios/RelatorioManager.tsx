@@ -3,7 +3,8 @@ import { FileText, Download, Filter, TrendingUp, DollarSign, Package, Calendar }
 import { RelatorioFilter } from './RelatorioFilter';
 import { RelatorioTable } from './RelatorioTable';
 import { RelatorioExport } from './RelatorioExport';
-import { relatorioService, RelatorioData } from '../../services/relatorio.service';
+import { relatorioService } from '../../services/relatorios.service';
+import { RelatorioData, FiltrosRelatorio } from '../../types/relatorios.types';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { LoadingState } from '../ui/LoadingState';
 import { ErrorState } from '../ui/ErrorState';
@@ -14,24 +15,17 @@ export const RelatorioManager: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(true);
 
-  const handleFilter = async (filters: any) => {
+  const handleFilter = async (filters: FiltrosRelatorio) => {
     try {
       setLoading(true);
       setError(null);
 
-      let data: RelatorioData;
-
-      if (filters.periodo === 'diario') {
-        data = await relatorioService.diario(filters.data);
-      } else if (filters.periodo === 'semanal') {
-        data = await relatorioService.semanal(filters.data);
-      } else {
-        data = await relatorioService.mensal(filters.mes, filters.ano);
-      }
+      // Usar novo serviço consolidado
+      const data = await relatorioService.gerarRelatorioConsolidado(filters);
 
       setRelatorio(data);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro ao gerar relatório');
+      setError(err.message || 'Erro ao gerar relatório');
     } finally {
       setLoading(false);
     }
