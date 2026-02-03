@@ -21,6 +21,8 @@ export class TrabalhoModel {
       funcionarios: data.funcionarios || [],
       totalPagoCentavos,
       lucroCentavos,
+      clienteNome: data.clienteNome, // Incluir clienteNome
+      localDescricao: data.localDescricao, // Incluir localDescricao
       observacoes: data.observacoes,
       createdBy: data.createdBy || '',
       createdAt: data.createdAt || now,
@@ -56,9 +58,10 @@ export class TrabalhoModel {
       errors.push('Valor recebido não pode ser negativo');
     }
 
-    if (!trabalho.funcionarios || trabalho.funcionarios.length === 0) {
-      errors.push('Pelo menos um funcionário deve ser associado ao trabalho');
-    }
+    // Funcionários são opcionais - podem ser adicionados depois
+    // if (!trabalho.funcionarios || trabalho.funcionarios.length === 0) {
+    //   errors.push('Pelo menos um funcionário deve ser associado ao trabalho');
+    // }
 
     if (!trabalho.createdBy) {
       errors.push('CreatedBy é obrigatório');
@@ -81,7 +84,7 @@ export class TrabalhoModel {
   }
 
   static toFirestore(trabalho: Trabalho): Record<string, any> {
-    return {
+    const data: Record<string, any> = {
       companyId: trabalho.companyId,
       data: trabalho.data,
       tipo: trabalho.tipo,
@@ -90,12 +93,24 @@ export class TrabalhoModel {
       funcionarios: trabalho.funcionarios,
       totalPagoCentavos: trabalho.totalPagoCentavos,
       lucroCentavos: trabalho.lucroCentavos,
-      observacoes: trabalho.observacoes,
       createdBy: trabalho.createdBy,
       createdAt: trabalho.createdAt,
       updatedAt: trabalho.updatedAt,
       deletedAt: trabalho.deletedAt,
     };
+
+    // Adicionar campos opcionais apenas se existirem
+    if (trabalho.clienteNome !== undefined) {
+      data.clienteNome = trabalho.clienteNome;
+    }
+    if (trabalho.localDescricao !== undefined) {
+      data.localDescricao = trabalho.localDescricao;
+    }
+    if (trabalho.observacoes !== undefined) {
+      data.observacoes = trabalho.observacoes;
+    }
+
+    return data;
   }
 
   static fromFirestore(id: string, data: any): Trabalho {
@@ -109,6 +124,8 @@ export class TrabalhoModel {
       funcionarios: data.funcionarios || [],
       totalPagoCentavos: data.totalPagoCentavos,
       lucroCentavos: data.lucroCentavos,
+      clienteNome: data.clienteNome,
+      localDescricao: data.localDescricao,
       observacoes: data.observacoes,
       createdBy: data.createdBy,
       createdAt: data.createdAt?.toDate() || new Date(),

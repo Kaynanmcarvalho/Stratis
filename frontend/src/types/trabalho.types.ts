@@ -9,6 +9,8 @@ export interface Trabalho {
   totalPagoCentavos: number;
   lucroCentavos: number;
   observacoes?: string;
+  clienteNome?: string;
+  localDescricao?: string;
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;

@@ -68,6 +68,8 @@ export interface Trabalho {
   funcionarios: TrabalhoFuncionario[];
   totalPagoCentavos: number;
   lucroCentavos: number;
+  clienteNome?: string; // Nome do cliente (opcional)
+  localDescricao?: string; // Descrição do local (opcional)
   observacoes?: string;
   createdBy: string;
   createdAt: Date;

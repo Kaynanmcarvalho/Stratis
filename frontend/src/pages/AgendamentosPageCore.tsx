@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Sparkles, Calendar, X, ArrowDown, ArrowUp } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { Plus, Calendar, X, ArrowDown, ArrowUp } from 'lucide-react';
 import { Dock } from '../components/core/Dock';
 import { AutocompleteCliente } from '../components/common/AutocompleteCliente';
 import './AgendamentosPageCore.css';
@@ -25,7 +25,6 @@ interface Agendamento {
 
 const AgendamentosPageCore: React.FC = () => {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
-  const [dataAtual] = useState(new Date());
   const [mostrarModal, setMostrarModal] = useState(false);
   const [novoAgendamento, setNovoAgendamento] = useState({
     cliente: '', data: '', horarioInicio: '', horarioFim: '',
@@ -38,19 +37,54 @@ const AgendamentosPageCore: React.FC = () => {
     setAgendamentos([]);
   }, []);
 
-  const agendamentosHoje = agendamentos.filter(a => 
-    a.data.toDateString() === dataAtual.toDateString()
-  );
+  // Filtrar apenas agendamentos futuros (amanhã em diante)
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const amanha = new Date(hoje);
+  amanha.setDate(amanha.getDate() + 1);
 
-  const agendamentosPorPeriodo = {
-    manha: agendamentosHoje.filter(a => a.periodo === 'manha'),
-    tarde: agendamentosHoje.filter(a => a.periodo === 'tarde'),
-    noite: agendamentosHoje.filter(a => a.periodo === 'noite'),
+  const agendamentosFuturos = agendamentos.filter(a => {
+    const dataAgendamento = new Date(a.data);
+    dataAgendamento.setHours(0, 0, 0, 0);
+    return dataAgendamento >= amanha;
+  });
+
+  // Agrupar por data
+  const agendamentosPorData = agendamentosFuturos.reduce((acc, agendamento) => {
+    const dataKey = agendamento.data.toISOString().split('T')[0];
+    if (!acc[dataKey]) {
+      acc[dataKey] = [];
+    }
+    acc[dataKey].push(agendamento);
+    return acc;
+  }, {} as Record<string, Agendamento[]>);
+
+  // Ordenar datas
+  const datasOrdenadas = Object.keys(agendamentosPorData).sort();
+
+  const totalAgendamentos = agendamentosFuturos.length;
+  const totalTonelagem = agendamentosFuturos.reduce((sum, a) => sum + a.tonelagem, 0);
+  const totalIA = agendamentosFuturos.filter(a => a.origem === 'ia').length;
+
+  const formatarData = (dataStr: string): string => {
+    const data = new Date(dataStr + 'T00:00:00');
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const amanha = new Date(hoje);
+    amanha.setDate(amanha.getDate() + 1);
+    const dataComparacao = new Date(data);
+    dataComparacao.setHours(0, 0, 0, 0);
+
+    if (dataComparacao.getTime() === amanha.getTime()) {
+      return 'Amanhã';
+    }
+
+    return data.toLocaleDateString('pt-BR', { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long' 
+    });
   };
-
-  const totalAgendamentos = agendamentosHoje.length;
-  const totalTonelagem = agendamentosHoje.reduce((sum, a) => sum + a.tonelagem, 0);
-  const totalIA = agendamentosHoje.filter(a => a.origem === 'ia').length;
 
   const confirmarAgendamento = (id: string) => {
     setAgendamentos(prev => prev.map(a => 
@@ -98,16 +132,9 @@ const AgendamentosPageCore: React.FC = () => {
         {/* Topo Editorial */}
         <div className="agenda-header">
           <div className="agenda-title-group">
-            <h1 className="agenda-title">Hoje</h1>
+            <h1 className="agenda-title">Próximos</h1>
             <div className="agenda-meta">
-              <span className="agenda-date">
-                {dataAtual.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}
-              </span>
-              <span className="agenda-separator">•</span>
-              <span className="agenda-live">
-                <span className="live-dot"></span>
-                Ao vivo
-              </span>
+              <span className="agenda-date">Agendamentos futuros</span>
             </div>
           </div>
           <button className="agenda-btn-add" onClick={() => setMostrarModal(true)}>
@@ -115,7 +142,7 @@ const AgendamentosPageCore: React.FC = () => {
           </button>
         </div>
 
-        {/* Resumo do Dia */}
+        {/* Resumo */}
         <div className="agenda-summary">
           <div className="summary-item">
             <span className="summary-value">{totalAgendamentos}</span>
@@ -129,333 +156,130 @@ const AgendamentosPageCore: React.FC = () => {
           <span className="summary-separator">•</span>
           <div className="summary-item">
             <span className="summary-value">{totalIA}</span>
-            <span className="summary-label">da IA</span>
+            <span className="summary-label">pela IA</span>
           </div>
         </div>
 
-        {/* Conteúdo */}
+        {/* Conteúdo - Organizado por Data */}
         <div className="agenda-content">
-          {/* Manhã */}
-          {agendamentosPorPeriodo.manha.length > 0 && (
-            <div className="agenda-section">
-              <div className="period-divider">
-                <div className="period-line"></div>
-                <span className="period-label">Manhã</span>
+          {datasOrdenadas.length === 0 ? (
+            <div className="agenda-empty">
+              <div className="empty-icon">
+                <Calendar size={48} strokeWidth={1.5} />
               </div>
-              {agendamentosPorPeriodo.manha.map((agendamento, index) => (
-                <div 
-                  key={agendamento.id} 
-                  className={`agenda-card-luxury ${agendamento.conflito ? 'has-conflict' : ''} ${agendamento.status === 'confirmado' ? 'confirmed' : ''}`}
-                  style={{ '--index': index } as React.CSSProperties}
-                >
-                  {/* Container principal */}
-                  <div className="card-content-luxury">
-                    
-                    {/* Lado esquerdo: Ícone + Info */}
-                    <div className="card-left-luxury">
-                      
-                      {/* Ícone grande com badge de tonelagem */}
-                      <div className="icon-container-luxury">
-                        <div className={`icon-badge-luxury ${agendamento.tipo === 'descarga' ? 'descarga' : 'carga'}`}>
-                          <svg className="truck-icon-luxury" viewBox="0 0 32 32" width="32" height="32">
-                            {/* Cabine */}
-                            <path d="M4 12h8v8H4z" fill="currentColor" opacity="0.9"/>
-                            {/* Carroceria */}
-                            <path d="M12 10h12v10H12z" fill="currentColor"/>
-                            {/* Rodas */}
-                            <circle cx="8" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
-                            <circle cx="20" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
-                            {/* Detalhes */}
-                            <path d="M14 12h8M14 14h8M14 16h8" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
-                          </svg>
-                        </div>
-                        <div className="icon-counter-luxury">{agendamento.tonelagem}t</div>
-                      </div>
-                      
-                      {/* Informações */}
-                      <div className="info-stack-luxury">
-                        <div className="client-code-luxury">{agendamento.cliente}</div>
-                        <div className="address-primary-luxury">{agendamento.local}</div>
-                        <div className="metadata-luxury">
-                          <span className={`status-dot-luxury ${agendamento.status}`}></span>
-                          <span className="status-text-luxury">
-                            {agendamento.status === 'confirmado' ? 'Confirmado' : 'Agendado'}
-                          </span>
-                          <span className="separator-luxury">•</span>
-                          <span className="time-luxury">{agendamento.horarioInicio}</span>
-                          {agendamento.origem === 'ia' && (
-                            <>
-                              <span className="separator-luxury">•</span>
-                              <div className="ia-badge-inline" title="Sugerido pela IA">
-                                <Sparkles size={12} strokeWidth={2} />
-                                <span>IA</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Lado direito: Ação */}
-                    <div className="card-right-luxury">
-                      {agendamento.status === 'pendente' && !agendamento.conflito && (
-                        <button 
-                          className="action-button-luxury"
-                          onClick={() => confirmarAgendamento(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Iniciar</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      {agendamento.status === 'confirmado' && (
-                        <button 
-                          className="action-button-luxury confirmed"
-                          onClick={() => ajustarAgendamento(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Detalhes</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      {agendamento.conflito && (
-                        <button 
-                          className="action-button-luxury conflict"
-                          onClick={() => resolverConflito(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Resolver</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                    
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Tarde */}
-          {agendamentosPorPeriodo.tarde.length > 0 && (
-            <div className="agenda-section">
-              <div className="period-divider">
-                <div className="period-line"></div>
-                <span className="period-label">Tarde</span>
-              </div>
-              {agendamentosPorPeriodo.tarde.map((agendamento, index) => (
-                <div 
-                  key={agendamento.id} 
-                  className={`agenda-card-luxury ${agendamento.conflito ? 'has-conflict' : ''} ${agendamento.status === 'confirmado' ? 'confirmed' : ''}`}
-                  style={{ '--index': index } as React.CSSProperties}
-                >
-                  {/* Container principal */}
-                  <div className="card-content-luxury">
-                    
-                    {/* Lado esquerdo: Ícone + Info */}
-                    <div className="card-left-luxury">
-                      
-                      {/* Ícone grande com badge de tonelagem */}
-                      <div className="icon-container-luxury">
-                        <div className={`icon-badge-luxury ${agendamento.tipo === 'descarga' ? 'descarga' : 'carga'}`}>
-                          <svg className="truck-icon-luxury" viewBox="0 0 32 32" width="32" height="32">
-                            <path d="M4 12h8v8H4z" fill="currentColor" opacity="0.9"/>
-                            <path d="M12 10h12v10H12z" fill="currentColor"/>
-                            <circle cx="8" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
-                            <circle cx="20" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
-                            <path d="M14 12h8M14 14h8M14 16h8" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
-                          </svg>
-                        </div>
-                        <div className="icon-counter-luxury">{agendamento.tonelagem}t</div>
-                      </div>
-                      
-                      {/* Informações */}
-                      <div className="info-stack-luxury">
-                        <div className="client-code-luxury">{agendamento.cliente}</div>
-                        <div className="address-primary-luxury">{agendamento.local}</div>
-                        <div className="metadata-luxury">
-                          <span className={`status-dot-luxury ${agendamento.status}`}></span>
-                          <span className="status-text-luxury">
-                            {agendamento.status === 'confirmado' ? 'Confirmado' : 'Agendado'}
-                          </span>
-                          <span className="separator-luxury">•</span>
-                          <span className="time-luxury">{agendamento.horarioInicio}</span>
-                          {agendamento.origem === 'ia' && (
-                            <>
-                              <span className="separator-luxury">•</span>
-                              <div className="ia-badge-inline" title="Sugerido pela IA">
-                                <Sparkles size={12} strokeWidth={2} />
-                                <span>IA</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Lado direito: Ação */}
-                    <div className="card-right-luxury">
-                      {agendamento.status === 'pendente' && !agendamento.conflito && (
-                        <button 
-                          className="action-button-luxury"
-                          onClick={() => confirmarAgendamento(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Iniciar</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      {agendamento.status === 'confirmado' && (
-                        <button 
-                          className="action-button-luxury confirmed"
-                          onClick={() => ajustarAgendamento(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Detalhes</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      {agendamento.conflito && (
-                        <button 
-                          className="action-button-luxury conflict"
-                          onClick={() => resolverConflito(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Resolver</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                    
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Noite */}
-          {agendamentosPorPeriodo.noite.length > 0 ? (
-            <div className="agenda-section">
-              <div className="period-divider">
-                <div className="period-line"></div>
-                <span className="period-label">Noite</span>
-              </div>
-              {agendamentosPorPeriodo.noite.map((agendamento, index) => (
-                <div 
-                  key={agendamento.id} 
-                  className={`agenda-card-luxury ${agendamento.conflito ? 'has-conflict' : ''} ${agendamento.status === 'confirmado' ? 'confirmed' : ''}`}
-                  style={{ '--index': index } as React.CSSProperties}
-                >
-                  {/* Container principal */}
-                  <div className="card-content-luxury">
-                    
-                    {/* Lado esquerdo: Ícone + Info */}
-                    <div className="card-left-luxury">
-                      
-                      {/* Ícone grande com badge de tonelagem */}
-                      <div className="icon-container-luxury">
-                        <div className={`icon-badge-luxury ${agendamento.tipo === 'descarga' ? 'descarga' : 'carga'}`}>
-                          <svg className="truck-icon-luxury" viewBox="0 0 32 32" width="32" height="32">
-                            <path d="M4 12h8v8H4z" fill="currentColor" opacity="0.9"/>
-                            <path d="M12 10h12v10H12z" fill="currentColor"/>
-                            <circle cx="8" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
-                            <circle cx="20" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
-                            <path d="M14 12h8M14 14h8M14 16h8" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
-                          </svg>
-                        </div>
-                        <div className="icon-counter-luxury">{agendamento.tonelagem}t</div>
-                      </div>
-                      
-                      {/* Informações */}
-                      <div className="info-stack-luxury">
-                        <div className="client-code-luxury">{agendamento.cliente}</div>
-                        <div className="address-primary-luxury">{agendamento.local}</div>
-                        <div className="metadata-luxury">
-                          <span className={`status-dot-luxury ${agendamento.status}`}></span>
-                          <span className="status-text-luxury">
-                            {agendamento.status === 'confirmado' ? 'Confirmado' : 'Agendado'}
-                          </span>
-                          <span className="separator-luxury">•</span>
-                          <span className="time-luxury">{agendamento.horarioInicio}</span>
-                          {agendamento.origem === 'ia' && (
-                            <>
-                              <span className="separator-luxury">•</span>
-                              <div className="ia-badge-inline" title="Sugerido pela IA">
-                                <Sparkles size={12} strokeWidth={2} />
-                                <span>IA</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Lado direito: Ação */}
-                    <div className="card-right-luxury">
-                      {agendamento.status === 'pendente' && !agendamento.conflito && (
-                        <button 
-                          className="action-button-luxury"
-                          onClick={() => confirmarAgendamento(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Iniciar</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      {agendamento.status === 'confirmado' && (
-                        <button 
-                          className="action-button-luxury confirmed"
-                          onClick={() => ajustarAgendamento(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Detalhes</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                      {agendamento.conflito && (
-                        <button 
-                          className="action-button-luxury conflict"
-                          onClick={() => resolverConflito(agendamento.id)}
-                        >
-                          <span className="button-text-luxury">Resolver</span>
-                          <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
-                            <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                    
-                  </div>
-                </div>
-              ))}
+              <h3 className="empty-title">Nenhum agendamento futuro</h3>
+              <p className="empty-desc">
+                Crie um novo agendamento para começar
+              </p>
             </div>
           ) : (
-            <div className="agenda-section">
-              <div className="period-divider">
-                <div className="period-line"></div>
-                <span className="period-label">Noite</span>
-              </div>
-              <div className="agenda-empty">
-                <div className="empty-icon">
-                  <Calendar size={48} strokeWidth={1.5} />
+            datasOrdenadas.map((dataKey) => (
+              <div key={dataKey} className="agenda-section">
+                <div className="period-divider">
+                  <div className="period-line"></div>
+                  <span className="period-label">{formatarData(dataKey)}</span>
                 </div>
-                <h3 className="empty-title">Nenhum compromisso</h3>
-                <p className="empty-desc">
-                  Você não tem agendamentos para este período
-                </p>
+                {agendamentosPorData[dataKey].map((agendamento, index) => (
+                  <div 
+                    key={agendamento.id} 
+                    className={`agenda-card-luxury ${agendamento.conflito ? 'has-conflict' : ''} ${agendamento.status === 'confirmado' ? 'confirmed' : ''}`}
+                    style={{ '--index': index } as React.CSSProperties}
+                  >
+                    <div className="card-content-luxury">
+                      
+                      {/* Lado esquerdo: Ãcone + Info */}
+                      <div className="card-left-luxury">
+                        
+                        {/* Ãcone grande com badge de tonelagem */}
+                        <div className="icon-container-luxury">
+                          <div className={`icon-badge-luxury ${agendamento.tipo === 'descarga' ? 'descarga' : 'carga'}`}>
+                            <svg className="truck-icon-luxury" viewBox="0 0 32 32" width="32" height="32">
+                              <path d="M4 12h8v8H4z" fill="currentColor" opacity="0.9"/>
+                              <path d="M12 10h12v10H12z" fill="currentColor"/>
+                              <circle cx="8" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
+                              <circle cx="20" cy="22" r="2.5" fill="currentColor" opacity="0.8"/>
+                              <path d="M14 12h8M14 14h8M14 16h8" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
+                            </svg>
+                          </div>
+                          <div className="icon-counter-luxury">{agendamento.tonelagem}t</div>
+                        </div>
+                        
+                        {/* Informações */}
+                        <div className="info-stack-luxury">
+                          <div className="client-code-luxury">
+                            {agendamento.cliente.length > 15 
+                              ? `${agendamento.cliente.substring(0, 15)}...` 
+                              : agendamento.cliente}
+                          </div>
+                          <div className="address-primary-luxury">
+                            {agendamento.local.length > 20 
+                              ? `${agendamento.local.substring(0, 20)}...` 
+                              : agendamento.local}
+                          </div>
+                          <div className="metadata-luxury">
+                            {/* Badge Tipo (Carga/Descarga) */}
+                            <span className={`tipo-badge ${agendamento.tipo}`}>
+                              {agendamento.tipo === 'carga' ? (
+                                <><ArrowUp size={10} strokeWidth={3} /> CARGA</>
+                              ) : (
+                                <><ArrowDown size={10} strokeWidth={3} /> DESCARGA</>
+                              )}
+                            </span>
+                            <span className="separator-luxury">â€¢</span>
+                            {/* Badge Origem (Manual/IA) */}
+                            <span className={`origem-badge ${agendamento.origem}`}>
+                              {agendamento.origem === 'ia' ? 'ðŸ¤– IA' : 'ðŸ‘¤ Manual'}
+                            </span>
+                            <span className="separator-luxury">â€¢</span>
+                            <span className="time-luxury">{agendamento.horarioInicio}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Lado direito: Ação */}
+                      <div className="card-right-luxury">
+                        {agendamento.status === 'pendente' && !agendamento.conflito && (
+                          <button 
+                            className="action-button-luxury"
+                            onClick={() => confirmarAgendamento(agendamento.id)}
+                          >
+                            <span className="button-text-luxury">Confirmar</span>
+                            <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
+                              <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </button>
+                        )}
+                        {agendamento.status === 'confirmado' && (
+                          <button 
+                            className="action-button-luxury confirmed"
+                            onClick={() => ajustarAgendamento(agendamento.id)}
+                          >
+                            <span className="button-text-luxury">Detalhes</span>
+                            <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
+                              <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </button>
+                        )}
+                        {agendamento.conflito && (
+                          <button 
+                            className="action-button-luxury conflict"
+                            onClick={() => resolverConflito(agendamento.id)}
+                          >
+                            <span className="button-text-luxury">Resolver</span>
+                            <svg className="button-arrow-luxury" viewBox="0 0 20 20" width="20" height="20">
+                              <path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                      
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            ))
           )}
         </div>
-
         {/* Modal Novo Agendamento - REDESIGN LUXURY */}
         {mostrarModal && (
           <div className="modal-overlay-luxury" onClick={() => setMostrarModal(false)}>
@@ -601,3 +425,4 @@ const AgendamentosPageCore: React.FC = () => {
 };
 
 export default AgendamentosPageCore;
+

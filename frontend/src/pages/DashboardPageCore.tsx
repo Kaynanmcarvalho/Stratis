@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Dock } from '../components/core/Dock';
 import { AutocompleteCliente } from '../components/common/AutocompleteCliente';
+import { trabalhoService } from '../services/trabalho.service';
 import './DashboardPageCore.css';
 import './AgendamentosPageCore.css'; // Estilos do modal
 
@@ -154,8 +155,25 @@ const DashboardPageCore: React.FC = () => {
     }
 
     try {
-      // TODO: Integrar com trabalhoService.create()
-      alert(`✅ Trabalho criado!\nCliente: ${novoTrabalho.cliente}\nLocal: ${novoTrabalho.local}\nToneladas: ${toneladas}t`);
+      // Criar trabalho no Firebase
+      const trabalhoData = {
+        data: new Date().toISOString(),
+        tipo: novoTrabalho.tipo,
+        tonelagem: toneladas,
+        valorRecebidoCentavos: 0,
+        funcionarios: [],
+        totalPagoCentavos: 0,
+        lucroCentavos: 0,
+        clienteNome: novoTrabalho.cliente, // Salvar nome do cliente
+        localDescricao: novoTrabalho.local, // Salvar descrição do local
+        observacoes: `Cliente: ${novoTrabalho.cliente} | Local: ${novoTrabalho.local}`,
+      };
+
+      console.log('📤 Enviando trabalho:', trabalhoData);
+      await trabalhoService.create(trabalhoData);
+      console.log('✅ Trabalho criado com sucesso');
+      
+      alert(`✅ Trabalho criado com sucesso!`);
       
       setMostrarModalTrabalho(false);
       setNovoTrabalho({
@@ -167,9 +185,10 @@ const DashboardPageCore: React.FC = () => {
       
       // Navegar para a página de trabalhos
       navigate('/trabalhos');
-    } catch (error) {
-      console.error('Erro ao criar trabalho:', error);
-      alert('❌ Erro ao criar trabalho. Tente novamente.');
+    } catch (error: any) {
+      console.error('❌ Erro ao criar trabalho:', error);
+      console.error('📋 Detalhes do erro:', error.response?.data);
+      alert(`❌ Erro ao criar trabalho: ${error.response?.data?.error || error.message}`);
     }
   };
 

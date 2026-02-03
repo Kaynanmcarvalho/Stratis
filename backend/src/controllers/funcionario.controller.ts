@@ -7,6 +7,7 @@ export class FuncionarioController {
   async list(req: Request, res: Response) {
     try {
       const { companyId } = req.auth;
+      console.log('📋 [FUNCIONARIOS] GET /funcionarios - companyId:', companyId);
 
       const snapshot = await db
         .collection(`companies/${companyId}/funcionarios`)
@@ -14,14 +15,20 @@ export class FuncionarioController {
         .orderBy('nome')
         .get();
 
+      console.log('📋 [FUNCIONARIOS] Snapshot size:', snapshot.size);
+      console.log('📋 [FUNCIONARIOS] Snapshot empty:', snapshot.empty);
+
       const funcionarios = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data()
       }));
 
+      console.log('📋 [FUNCIONARIOS] Funcionários encontrados:', funcionarios.length);
+      console.log('📋 [FUNCIONARIOS] Dados:', JSON.stringify(funcionarios, null, 2));
+
       res.json(funcionarios);
     } catch (error) {
-      console.error('Error listing funcionarios:', error);
+      console.error('❌ [FUNCIONARIOS] Error listing funcionarios:', error);
       res.status(500).json({ error: 'Failed to list funcionarios' });
     }
   }

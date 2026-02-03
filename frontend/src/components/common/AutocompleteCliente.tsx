@@ -31,6 +31,7 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
   const containerRef = useRef<HTMLDivElement>(null);
+  const isSelectingRef = useRef(false); // Ref para controlar seleção
 
   useEffect(() => {
     setMounted(true);
@@ -38,6 +39,11 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
 
   // Buscar clientes com debounce
   useEffect(() => {
+    // Se está selecionando, não buscar
+    if (isSelectingRef.current) {
+      return;
+    }
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -48,7 +54,9 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
         try {
           const resultados = await clienteService.searchClientes(value, companyId, 10);
           setSugestoes(resultados);
-          setMostrarSugestoes(true);
+          if (!isSelectingRef.current) {
+            setMostrarSugestoes(true);
+          }
         } catch (error) {
           console.error('Erro ao buscar clientes:', error);
           setSugestoes([]);
@@ -82,12 +90,31 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
   }, []);
 
   const selecionarCliente = (cliente: ClienteSugestao) => {
-    onChange(cliente.nome);
+    // Marcar que está selecionando
+    isSelectingRef.current = true;
+    
+    // Fechar dropdown imediatamente
     setMostrarSugestoes(false);
     setSelectedIndex(-1);
+    setSugestoes([]);
+    
+    // Atualizar valor
+    onChange(cliente.nome);
+    
+    // Callback
     if (onSelect) {
       onSelect(cliente);
     }
+    
+    // Remover foco
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
+    
+    // Resetar flag após um tempo maior
+    setTimeout(() => {
+      isSelectingRef.current = false;
+    }, 1000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -128,7 +155,11 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          onFocus={() => value.length >= 2 && setMostrarSugestoes(true)}
+          onFocus={() => {
+            if (!isSelectingRef.current && value.length >= 2 && sugestoes.length > 0) {
+              setMostrarSugestoes(true);
+            }
+          }}
           autoFocus={autoFocus}
           autoComplete="off"
           style={{

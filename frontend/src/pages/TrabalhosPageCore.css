@@ -794,122 +794,364 @@
 }
 
 /* ============================================
-   TRABALHOS PLANEJADOS
+   CARD DE OPERAÇÃO PLANEJADA - NATIVE OS REDESIGN
+   Correção Estrutural Alpha 0.20.0
+   Gestos com Zonas Físicas e Segurança Cognitiva
    ============================================ */
 
 .trabalhos-planejados-lista {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 14px;
 }
 
-.trabalho-planejado-card {
+/* ============================================
+   WRAPPER - Isolamento Completo
+   ============================================ */
+
+.native-card-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(90deg, 
+    rgba(142, 142, 147, 0.08) 0%,
+    rgba(142, 142, 147, 0.12) 40%,
+    rgba(255, 59, 48, 0.12) 100%
+  );
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+/* ============================================
+   CARD PRINCIPAL - Objeto Físico Digital
+   ============================================ */
+
+.native-operation-card {
+  position: relative;
+  z-index: 2;
+  background: #FFFFFF;
+  border-radius: 16px;
+  will-change: transform, opacity;
+  transition: none;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Estado: Intenção de Excluir (Zona 3) */
+.native-operation-card.deleting-intent {
+  background: rgba(255, 59, 48, 0.04);
+  border-color: rgba(255, 59, 48, 0.15);
+}
+
+.native-card-content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  padding-bottom: 24px; /* Espaço extra embaixo para o botão */
+  gap: 16px;
+  min-height: fit-content; /* Garantir que todo conteúdo seja visível */
+}
+
+/* ============================================
+   CHIP DE TIPO - Topo
+   ============================================ */
+
+.native-type-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(0, 122, 255, 0.1);
+  border: none;
+}
+
+.native-type-chip.carga {
+  background: rgba(52, 199, 89, 0.1);
+}
+
+.native-type-chip span {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #007AFF;
+}
+
+.native-type-chip.carga span {
+  color: #34C759;
+}
+
+/* ============================================
+   NOME DO CLIENTE - Destaque Principal
+   ============================================ */
+
+.native-client-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  color: #000000;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============================================
+   INFORMAÇÕES - Grid Organizado
+   ============================================ */
+
+.native-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.native-info-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-base);
+  gap: 12px;
 }
 
-.trabalho-planejado-card:hover {
-  box-shadow: var(--shadow-01);
-  transform: translateY(-1px);
+.native-info-icon {
+  color: #8E8E93;
+  flex-shrink: 0;
 }
 
-.trabalho-planejado-header {
-  display: flex;
+.native-info-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.3px;
+  color: #3C3C43;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============================================
+   BOTÃO INICIAR - Ação Nativa
+   ============================================ */
+
+.native-action-button {
+  display: flex !important; /* Forçar exibição */
   align-items: center;
-  gap: var(--space-3);
-  flex: 1;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  margin-top: 8px; /* Espaço acima do botão */
+  border-radius: 12px;
+  background: linear-gradient(180deg, #34C759 0%, #30D158 100%) !important;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.25);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 10; /* Garantir que fique acima de outros elementos */
 }
 
-.tipo-badge-small {
-  width: 36px;
-  height: 36px;
+.native-action-button span {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  color: #FFFFFF;
+}
+
+.native-action-icon {
+  color: #FFFFFF;
+}
+
+.native-action-button:hover {
+  background: linear-gradient(180deg, #30D158 0%, #32D74B 100%);
+}
+
+.native-action-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 4px rgba(52, 199, 89, 0.2);
+}
+
+/* ============================================
+   AÇÕES DO GESTO - iOS Mail Style
+   ============================================ */
+
+.native-swipe-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.native-action-edit,
+.native-action-delete {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  flex-shrink: 0;
-}
-
-.tipo-badge-small.carga {
-  background: var(--straxis-green-50);
-}
-
-.tipo-badge-small.descarga {
-  background: var(--straxis-blue-50);
-}
-
-.tipo-badge-small .icon {
-  width: 18px;
-  height: 18px;
-  color: var(--straxis-blue-600);
-}
-
-.tipo-badge-small.carga .icon {
-  color: var(--straxis-green-600);
-}
-
-.trabalho-planejado-info {
-  flex: 1;
-}
-
-.trabalho-planejado-cliente {
-  font-family: var(--font-text);
-  font-size: var(--text-body);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-1) 0;
-}
-
-.trabalho-planejado-detalhes {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-text);
-  font-size: var(--text-caption);
-  color: var(--color-text-secondary);
-}
-
-.trabalho-planejado-detalhes .icon {
-  width: 14px;
-  height: 14px;
-}
-
-.trabalho-planejado-detalhes .separador {
-  color: var(--color-text-tertiary);
-}
-
-.btn-iniciar-trabalho {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--straxis-green-500);
-  color: white;
   border: none;
-  border-radius: var(--radius-md);
-  font-family: var(--font-text);
-  font-size: var(--text-body);
-  font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-base);
-  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-iniciar-trabalho:hover {
-  background: var(--straxis-green-600);
-  transform: translateY(-1px);
+/* Botão Editar - Azul Vibrante iOS */
+.native-action-edit {
+  width: 70px;
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+  color: #FFFFFF;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 8px rgba(0, 122, 255, 0.3);
 }
 
-.btn-iniciar-trabalho .icon {
-  width: 18px;
-  height: 18px;
+.native-action-edit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Botão Deletar - Vermelho Vibrante iOS */
+.native-action-delete {
+  width: 80px;
+  background: linear-gradient(135deg, #FF3B30 0%, #D70015 100%);
+  color: #FFFFFF;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 8px rgba(255, 59, 48, 0.4);
+}
+
+.native-action-delete::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Estado ativo (Zona 3 - Intenção de Excluir) */
+.native-action-delete.active {
+  background: linear-gradient(135deg, #FF453A 0%, #E5001A 100%);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 3px 12px rgba(255, 59, 48, 0.5),
+    0 0 0 2px rgba(255, 59, 48, 0.2);
+  animation: deletePulse 1s ease-in-out infinite;
+}
+
+@keyframes deletePulse {
+  0%, 100% { 
+    transform: scale(1) translateZ(0);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 3px 12px rgba(255, 59, 48, 0.5),
+      0 0 0 2px rgba(255, 59, 48, 0.2);
+  }
+  50% { 
+    transform: scale(1.02) translateZ(0);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 4px 16px rgba(255, 59, 48, 0.6),
+      0 0 0 3px rgba(255, 59, 48, 0.3);
+  }
+}
+
+/* Estados de Interação */
+.native-action-edit:active {
+  background: linear-gradient(135deg, #0051D5 0%, #003DA5 100%);
+  transform: scale(0.95) translateZ(0);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 1px 4px rgba(0, 122, 255, 0.2);
+}
+
+.native-action-delete:active {
+  background: linear-gradient(135deg, #D70015 0%, #B00012 100%);
+  transform: scale(0.95) translateZ(0);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 1px 4px rgba(255, 59, 48, 0.3);
+}
+
+/* Ícones com Sombra Suave */
+.native-action-edit svg,
+.native-action-delete svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ============================================
+   ESTADOS DE ANIMAÇÃO - Curvas Apple
+   ============================================ */
+
+.native-operation-card.swiping {
+  transition: none !important;
+}
+
+.native-operation-card.returning {
+  transition: transform 0.45s cubic-bezier(0.36, 0.66, 0.04, 1) !important;
+}
+
+.native-operation-card.deleting {
+  transition: all 0.35s cubic-bezier(0.4, 0, 1, 1) !important;
+}
+
+/* ============================================
+   MOBILE RESPONSIVO
+   ============================================ */
+
+@media (max-width: 768px) {
+  .native-operation-card {
+    min-height: 168px; /* Altura mínima, não fixa */
+    height: auto; /* Permitir expansão */
+  }
+  
+  .native-card-content {
+    padding: 20px;
+    gap: 14px;
+  }
+  
+  .native-client-title {
+    font-size: 21px;
+  }
+  
+  .native-info-text {
+    font-size: 15px;
+  }
+  
+  .native-action-button {
+    height: 50px;
+  }
+  
+  .native-action-button span {
+    font-size: 16px;
+  }
 }
 
 /* ============================================
@@ -1758,4 +2000,297 @@
   font-size: 1rem;
   color: var(--color-textSecondary);
   font-weight: 500;
+}
+
+
+/* ============================================
+   SWIPE-TO-DELETE - APPLE QUALITY
+   Inspirado no iOS Mail, Reminders, Messages
+   ============================================ */
+
+.trabalho-swipe-wrapper {
+  position: relative;
+  overflow: hidden; /* CRÍTICO: esconde o vermelho nas bordas */
+  margin-bottom: 12px;
+  border-radius: 16px; /* Mesmo raio do card */
+  background: #FF3B30; /* iOS Red - só visível no swipe */
+  /* Suavidade Apple */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Sombras aplicadas no card, não no wrapper */
+}
+
+.trabalho-planejado-card {
+  position: relative;
+  z-index: 2;
+  background: white;
+  border-radius: 16px;
+  will-change: transform, opacity;
+  transition: none;
+  /* Sombras sutis Apple */
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 0.5px solid rgba(0, 0, 0, 0.04);
+  /* Suavidade de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.btn-excluir-swipe {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 88px;
+  background: transparent;
+  border: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  z-index: 1;
+  /* Tipografia Apple */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  /* Transição suave */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Remove highlight azul no mobile */
+  -webkit-tap-highlight-color: transparent;
+  /* Suavidade de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Performance */
+  transform: translateZ(0);
+}
+
+.btn-excluir-swipe:active {
+  background: rgba(0, 0, 0, 0.1);
+  /* Feedback tátil visual */
+  transform: scale(0.98) translateZ(0);
+}
+
+.btn-excluir-swipe svg {
+  /* Sombra sutil no ícone */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  /* Performance */
+  transform: translateZ(0);
+}
+
+/* Estados de Animação - Curvas Bezier Apple */
+.trabalho-planejado-card.swiping {
+  transition: none !important;
+  /* Sem transição durante o swipe para resposta instantânea */
+}
+
+.trabalho-planejado-card.returning {
+  /* Curva Apple: suave no início, rápida no fim */
+  transition: transform 0.4s cubic-bezier(0.36, 0.66, 0.04, 1) !important;
+  /* Bounce sutil característico do iOS */
+}
+
+.trabalho-planejado-card.deleting {
+  /* Curva Apple: aceleração suave */
+  transition: all 0.35s cubic-bezier(0.4, 0, 1, 1) !important;
+  /* Fade out simultâneo */
+}
+
+/* ============================================
+   TOAST UNDO - APPLE QUALITY
+   Inspirado no iOS Control Center e Notifications
+   ============================================ */
+
+.toast-undo {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  /* Animação Apple: bounce sutil */
+  animation: toastSlideDown 0.4s cubic-bezier(0.36, 0.66, 0.04, 1);
+  /* Performance */
+  will-change: transform, opacity;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes toastSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.toast-content {
+  /* Glassmorphism Apple */
+  background: rgba(28, 28, 30, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Sombras profundas Apple */
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 320px;
+  max-width: 90vw;
+  /* Performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.toast-icon {
+  color: #34C759; /* iOS Green */
+  flex-shrink: 0;
+  /* Performance */
+  transform: translateZ(0);
+}
+
+.toast-message {
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  flex: 1;
+  /* Tipografia Apple */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  letter-spacing: -0.2px;
+  /* Suavidade */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.toast-btn-undo {
+  /* Gradiente iOS Blue */
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  /* Transição suave Apple */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Tipografia Apple */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  letter-spacing: -0.2px;
+  /* Sombra sutil */
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+  /* Remove highlight azul */
+  -webkit-tap-highlight-color: transparent;
+  /* Suavidade */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Performance */
+  transform: translateZ(0);
+}
+
+.toast-btn-undo:hover {
+  transform: scale(1.05) translateZ(0);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+}
+
+.toast-btn-undo:active {
+  /* Feedback tátil Apple */
+  transform: scale(0.98) translateZ(0);
+  box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3);
+}
+
+.toast-btn-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* Transição suave */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  /* Remove highlight */
+  -webkit-tap-highlight-color: transparent;
+  /* Performance */
+  transform: translateZ(0);
+}
+
+.toast-btn-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.05) translateZ(0);
+}
+
+.toast-btn-close:active {
+  transform: scale(0.95) translateZ(0);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  /* Gradiente iOS Blue */
+  background: linear-gradient(90deg, #007AFF 0%, #0051D5 100%);
+  border-radius: 0 0 16px 16px;
+  /* Animação linear de 5 segundos */
+  animation: toastProgress 5s linear;
+  transform-origin: left;
+  /* Performance */
+  will-change: transform;
+}
+
+@keyframes toastProgress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Mobile Responsivo */
+@media (max-width: 768px) {
+  .toast-content {
+    min-width: auto;
+    width: calc(100vw - 32px);
+    margin: 0 16px;
+    padding: 14px 18px;
+  }
+  
+  .toast-message {
+    font-size: 14px;
+  }
+  
+  .toast-btn-undo {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .toast-btn-close {
+    width: 28px;
+    height: 28px;
+  }
 }

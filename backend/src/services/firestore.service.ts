@@ -352,4 +352,57 @@ export class FirestoreService {
       throw new Error(`Erro ao buscar documentos da subcoleção: ${error.message}`);
     }
   }
+
+  /**
+   * Busca um documento específico em uma subcoleção
+   */
+  static async getSubcollectionDoc<T>(
+    parentCollection: string,
+    parentDocId: string,
+    subcollection: string,
+    docId: string
+  ): Promise<T | null> {
+    try {
+      const docRef = db
+        .collection(parentCollection)
+        .doc(parentDocId)
+        .collection(subcollection)
+        .doc(docId);
+
+      const doc = await docRef.get();
+
+      if (!doc.exists) {
+        return null;
+      }
+
+      return {
+        id: doc.id,
+        ...doc.data(),
+      } as T;
+    } catch (error: any) {
+      throw new Error(`Erro ao buscar documento da subcoleção: ${error.message}`);
+    }
+  }
+
+  /**
+   * Deleta um documento de uma subcoleção (soft delete)
+   */
+  static async deleteSubcollectionDoc(
+    parentCollection: string,
+    parentDocId: string,
+    subcollection: string,
+    docId: string
+  ): Promise<void> {
+    try {
+      const docRef = db
+        .collection(parentCollection)
+        .doc(parentDocId)
+        .collection(subcollection)
+        .doc(docId);
+
+      await docRef.delete();
+    } catch (error: any) {
+      throw new Error(`Erro ao deletar documento da subcoleção: ${error.message}`);
+    }
+  }
 }
