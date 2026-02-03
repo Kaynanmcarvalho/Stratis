@@ -2,13 +2,13 @@
 
 ## 📋 Informações do Sistema
 - **Nome**: Straxis SaaS
-- **Versão Atual**: Alpha 0.7.8
-- **Última Atualização**: 27/01/2026
+- **Versão Atual**: Beta 1.30.7
+- **Última Atualização**: 03/02/2026
 - **Status**: Em Desenvolvimento Ativo
 
 ## 👥 Desenvolvedores
 
-### Kaynan Moreira (Desenvolvedor Principal)
+### Kaynan Moreira 
 - **Telefone**: (62) 99451-0649
 - **Responsabilidades**: 
   - Arquitetura do sistema
@@ -17,7 +17,7 @@
   - Tasks 1-5, 9-35
 - **Horário de Trabalho**: Detectado automaticamente pelo Kiro
 
-### Renier (Colaborador)
+### Renier 
 - **Telefone**: (62) 99278-2003
 - **Responsabilidades**:
   - Frontend (React + TypeScript)
@@ -32,13 +32,13 @@
 **SEMPRE antes de fazer commit ou push para o Git:**
 
 1. **Kiro detecta automaticamente**:
-   - Data e hora atual (27/01/2026 - Tuesday)
+   - Data e hora atual (27/02/2026 exemplo - Tuesday)
    - Desenvolvedor logado (Kaynan ou Renier)
    - Mudanças realizadas
 
 2. **Atualizar versão no Sidebar**:
    - Arquivo: `frontend/src/components/common/Sidebar.tsx`
-   - Localizar: `<span className="version-number">Alpha 0.7.8</span>`
+   - Localizar: `<span className="version-number">Beta 1.30.6</span>`
    - Incrementar versão conforme tipo de mudança:
      - **Patch** (0.7.X): Correções de bugs, ajustes pequenos
      - **Minor** (0.X.0): Novas funcionalidades, tasks concluídas
@@ -51,19 +51,19 @@
 4. **Exemplo de atualização**:
 ```tsx
 // ANTES
-<span className="version-number">Alpha 0.7.8</span>
+<span className="version-number">Beta 0.7.8</span>
 <span className="version-number-collapsed">v0.7.8</span>
-title="Última atualização: 27/01/2026"
+title="Última atualização: Consulta data faça um script python pra tu consultar"
 
 // DEPOIS (nova funcionalidade)
-<span className="version-number">Alpha 0.8.0</span>
+<span className="version-number">Beta 0.8.0</span>
 <span className="version-number-collapsed">v0.8.0</span>
-title="Última atualização: 27/01/2026"
+title="Última atualização: Consulta data faça ou consulte se tu fez um script python pra tu consultar com nome 'data.py' "
 ```
 
 ### Convenção de Versionamento
-- **Alpha 0.X.X**: Desenvolvimento inicial (atual)
-- **Beta 1.X.X**: Testes e refinamento
+- **Alpha 0.X.X**: Desenvolvimento inicial 
+- **Beta 1.X.X**: Testes e refinamento (atual)
 - **Release 2.X.X**: Produção estável
 
 ## 🏗️ Arquitetura do Sistema
@@ -296,7 +296,7 @@ node backend/create-admin-user.js # Criar admin
 
 ## ⚠️ Checklist Antes de Commit
 
-- [ ] **Atualizar versão no Sidebar** (`Sidebar.tsx`)
+- [ ] **Atualizar versão no Sidebar e perfil** (`Sidebar.tsx e perfil`)
 - [ ] Executar `npm run lint` (sem erros)
 - [ ] Executar `npm test` (todos passando)
 - [ ] Verificar valores monetários em centavos

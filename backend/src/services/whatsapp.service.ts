@@ -42,10 +42,16 @@ export class WhatsAppService {
    */
   static async connect(companyId: string): Promise<{ qrCode: string; sessionId: string }> {
     try {
-      // Verificar se já existe sessão ativa
+      // Verificar se já existe sessão ativa E conectada
       const existingSession = await this.getActiveSession(companyId);
-      if (existingSession) {
+      if (existingSession && existingSession.socket?.user) {
         throw new Error('Já existe uma sessão ativa. Desconecte primeiro antes de criar uma nova.');
+      }
+
+      // Se existe sessão mas não está conectada, limpar
+      if (existingSession) {
+        console.log('🧹 Limpando sessão inativa...');
+        await this.forceDisconnect(companyId);
       }
 
       // Tentar recuperar sessão salva
@@ -69,8 +75,10 @@ export class WhatsAppService {
       let qrCodeData = '';
       let qrCount = 0;
       let resolveQR: (value: string) => void;
-      const qrPromise = new Promise<string>((resolve) => {
+      let rejectQR: (error: Error) => void;
+      const qrPromise = new Promise<string>((resolve, reject) => {
         resolveQR = resolve;
+        rejectQR = reject;
       });
 
       // Configurar autenticação multi-arquivo
@@ -144,13 +152,21 @@ export class WhatsAppService {
           
           console.log(`❌ Conexão fechada. Status: ${statusCode}, Reconectar: ${shouldReconnect}`);
           
+          // Limpar sessão em memória
+          this.sessions.delete(sessionId);
+          
           if (statusCode === 515) {
             console.error('⚠️ Erro 515: Número bloqueado ou banido pelo WhatsApp');
             await this.handleError515(companyId, sessionId);
           }
           
-          // Limpar sessão
-          this.sessions.delete(sessionId);
+          // Se QR expirou (408) ou erro de conexão, rejeitar promise
+          if (statusCode === 408 || statusCode === DisconnectReason.timedOut) {
+            console.log('⏱️ QR Code expirado ou timeout');
+            if (qrCount === 0) {
+              rejectQR(new Error('Timeout ao gerar QR Code'));
+            }
+          }
           
           if (!shouldReconnect) {
             await this.gracefulDisconnect(companyId);
@@ -483,24 +499,54 @@ export class WhatsAppService {
         );
       }
 
-      // Registrar log
-      await LogService.logWhatsApp(companyId, 'Desconexão WhatsApp', {
-        sessionId,
-      });
+      await LogService.logWhatsApp(companyId, 'WhatsApp desconectado', { sessionId });
     } catch (error) {
-      console.error('Erro ao desconectar WhatsApp:', error);
+      console.error('Erro ao desconectar:', error);
       throw error;
     }
   }
 
   /**
+   * Força desconexão de todas as sessões de uma empresa
+   */
+  static async forceDisconnect(companyId: string): Promise<void> {
+    try {
+      console.log(`🔌 Forçando desconexão de todas as sessões de ${companyId}...`);
+      
+      // Limpar todas as sessões em memória desta empresa
+      for (const [sessionId, session] of this.sessions) {
+        if (session.companyId === companyId) {
+          try {
+            await session.socket.logout();
+          } catch (err) {
+            console.error('Erro ao deslogar:', err);
+          }
+          this.sessions.delete(sessionId);
+        }
+      }
+
+      // Limpar todos os diretórios de autenticação desta empresa
+      if (fs.existsSync(this.authDir)) {
+        const files = fs.readdirSync(this.authDir);
+        for (const file of files) {
+          if (file.startsWith(`session_${companyId}_`)) {
+            const filePath = path.join(this.authDir, file);
+            console.log(`🗑️ Removendo: ${file}`);
+            fs.rmSync(filePath, { recursive: true, force: true });
+          }
+        }
+      }
+
+      console.log('✅ Desconexão forçada concluída');
+    } catch (error) {
+      console.error('Erro ao forçar desconexão:', error);
+    }
+  }
+  /**
    * Desconexão graciosa (quando WhatsApp desconecta inesperadamente)
    */
   static async gracefulDisconnect(companyId: string): Promise<void> {
     try {
-      // Importar dinamicamente para evitar dependência circular
-      const { notificationService } = await import('./notification.service');
-
       // Atualizar todas as sessões ativas para desconectadas
       const sessions = await FirestoreService.querySubcollection(
         'companies',
@@ -524,17 +570,16 @@ export class WhatsAppService {
         );
       }
 
-      // Notificar no painel
-      await notificationService.notifyWhatsAppDisconnected(companyId);
-
-      // Registrar log
+      // Registrar log (sem notificação para evitar erro de userId undefined)
       await LogService.logWhatsApp(companyId, 'Desconexão graciosa WhatsApp', {
         reason: 'unexpected_disconnect',
         sessionsAffected: sessions.length
       });
+      
+      console.log(`📴 Desconexão graciosa concluída para ${companyId}`);
     } catch (error) {
       console.error('Erro na desconexão graciosa WhatsApp:', error);
-      throw error;
+      // Não fazer throw para não crashar o servidor
     }
   }
 

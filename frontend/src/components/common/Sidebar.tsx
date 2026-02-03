@@ -136,15 +136,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ userRole, isOpen = false, onCl
         <div className="sidebar-footer">
           <div 
             className="version-info"
-            title="Última atualização: 03/02/2026 - FIX: Encoding UTF-8 agenda corrigido"
+            title="Última atualização: 03/02/2026 - FIX: Backend crash e modal scroll"
           >
             {!isCollapsed ? (
               <>
                 <span className="version-label">Versão</span>
-                <span className="version-number">Alpha 0.30.3</span>
+                <span className="version-number">Alpha 0.30.8</span>
               </>
             ) : (
-              <span className="version-number-collapsed">v0.30.3</span>
+              <span className="version-number-collapsed">v0.30.8</span>
             )}
           </div>
         </div>
