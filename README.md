@@ -1,10 +1,11 @@
 # Straxis SaaS - Sistema de Gestão de Carga e Descarga
 
 **Data de Criação:** 26/01/2026  
+**Última Atualização:** 03/02/2026  
 **Desenvolvedor Principal:** Kaynan Moreira  
 **Colaborador:** Renier (a partir da task 6)  
-**Versão:** 1.1  
-**Status:** Especificação Completa ✅ (Atualizada com melhorias críticas)
+**Versão:** Beta 1.33.3  
+**Status:** Em Desenvolvimento Ativo ✅
 
 > **📝 Nota:** Este README é atualizado automaticamente pela IA a cada 5 tasks concluídas, registrando as mudanças baseadas no desenvolvedor logado (Kaynan ou Renier).
 
@@ -1201,7 +1202,8 @@ flowchart LR
 - 📱 (62) 99278-2003
 
 **Data de Criação:** 26/01/2026  
-**Versão:** 1.1
+**Versão:** Beta 1.33.3  
+**Última Atualização:** 03/02/2026
 
 ---
 
@@ -1215,8 +1217,68 @@ Propriedade privada - Todos os direitos reservados.
 
 ## 📊 Histórico de Desenvolvimento
 
-### 27/01/2026 - Correções de Rotas e Autenticação
+### 03/02/2026 - Provedores de IA e Melhorias Gerais (Beta 1.32.0 → Beta 1.33.3)
 **Desenvolvedor:** Kaynan Moreira  
+**Versão:** Beta 1.33.3  
+**Mudanças:**
+- ✅ **Provedores de IA Expandidos (Alpha v1)**
+  - Adicionado LM Studio com modelo Qwen2.5-Coder-7B-Instruct
+  - Integração com API Hugging Face (acesso a +100 mil modelos)
+  - Novos provedores: OpenRouter, Kimi
+  - Versões adicionais de GPT e Gemini
+  - Chaves de API configuráveis via `.env`
+  - Informações atualizadas dos modelos (baseado em pesquisa 2026)
+  - Gemini 2.5 Flash: modelo ultra-eficiente otimizado para velocidade e custo
+  - Fallbacks de chaves planejados para Alpha v1.1
+- ✅ **Configuração de IA Aprimorada (Beta 1.32.0)**
+  - Página IA Config com mais opções custo-benefício
+  - Removido dados mock da página
+  - Backend e Frontend sincronizados para consistência
+- ✅ **Correção de Scroll Mobile (Beta 1.31.4)**
+  - Dock não bloqueia mais o scroll da página
+  - Removido `touch-action: none` do `.dock-container`
+  - Mantido `touch-action: pan-y` no `.dock` para gestos horizontais
+  - Removido `minHeight: '100vh'` inline do Dashboard
+  - Removido `<Dock />` duplicado no DashboardPageCore
+  - Simplificado CSS do CoreLayout
+  - Ajustado `handleTouchMove` no Dock.tsx
+- ✅ **Correção de Rotas WhatsApp (Beta 1.30.9)**
+  - Mudança de URL: `/whatsapp2` → `/whatsapp`
+  - Removido arquivos duplicados `.css` e `.tsx` do WhatsApp
+  - Atualizado menu com nova rota
+- ✅ **Correção Backend QR Code (Alpha 0.30.8 → Beta 1.30.6)**
+  - Corrigido travamento do backend quando QR code não é escaneado
+  - Correção no modal do WhatsApp para rolagem funcionar
+  - Removido CSS global que interferia em outras páginas
+
+### 02/02/2026 - Melhorias Gerais
+**Desenvolvedor:** Renier  
+**Mudanças:**
+- ✅ Melhorias gerais no sistema
+- ✅ Correções de lógica em todas as abas
+
+### 30/01/2026 - Correções de Lógica
+**Desenvolvedor:** Renier  
+**Mudanças:**
+- ✅ Correções de lógica em todas as abas
+
+### 29/01/2026 - Melhorias em Abas
+**Desenvolvedor:** Renier  
+**Mudanças:**
+- ✅ Melhorias em lógica de abas
+- ✅ Melhoria de lógica nas abas
+
+### 28/01/2026 - Straxis CORE Design System (Alpha 2.3.0)
+**Desenvolvedor:** Renier  
+**Versão:** Alpha 2.3.0  
+**Mudanças:**
+- ✅ Implementado Straxis CORE Design System
+- ✅ Dock arrastável funcional
+- ✅ Página Equipe Operacional
+
+### 27/01/2026 - Correções de Rotas e Autenticação (Alpha 0.7.8)
+**Desenvolvedor:** Kaynan Moreira  
+**Versão:** Alpha 0.7.8  
 **Mudanças:**
 - ✅ Corrigido duplicação de `/api` nas rotas do frontend
   - Atualizado `trabalho.service.ts`, `agendamento.service.ts`, `funcionario.service.ts`
@@ -1241,31 +1303,20 @@ Propriedade privada - Todos os direitos reservados.
 - ✅ Tratamento de erros em serviços
   - Garantir que sempre retornam arrays válidos
   - Prevenção de crashes por dados undefined
+- ✅ Melhorado Gestão de Empresas
+  - Modo não-modal para mobile
+  - Criado índices para empresas sem empresaId definido (Alpha 0.7.1)
+- ✅ Atualização de rotas de API
+  - Login real implementado
+  - QR Code WhatsApp funcional
 
-### Tasks 1-5 (Pendentes)
-**Desenvolvedor:** Kaynan Moreira  
-**Data:** [Aguardando implementação]  
-**Mudanças:**
-- [ ] Setup inicial do projeto
-- [ ] Autenticação e multi-tenancy
-- [ ] Firestore Rules
-- [ ] Gestão de empresas
-
-### Tasks 6-10 (Pendentes)
-**Desenvolvedor:** Renier  
-**Data:** [Aguardando implementação]  
-**Mudanças:**
-- [ ] Gestão de usuários
-- [ ] Sistema de logs
-- [ ] Módulo de funcionários
-- [ ] Módulo de agendamentos
-
-> **📝 Nota:** Este histórico será atualizado automaticamente pela IA a cada 5 tasks concluídas, registrando o desenvolvedor responsável e as mudanças implementadas.
+> **📝 Nota:** Este histórico é atualizado automaticamente pela IA registrando o desenvolvedor responsável e as mudanças implementadas.
 
 ---
 
-**Status do Projeto:** ✅ Especificação Completa v1.1 + Correções de Rotas e Auth  
-**Próximo Passo:** Criar usuário admin e iniciar implementação seguindo tasks.md  
-**Desenvolvedor Atual:** Kaynan Moreira
+**Status do Projeto:** ✅ Beta 1.33.3 - Provedores de IA Expandidos + Correções  
+**Próximo Passo:** Implementar fallbacks de chaves para Alpha v1.1  
+**Desenvolvedor Atual:** Kaynan Moreira  
+**Última Atualização:** 03/02/2026 23:20
 
-**Nota:** Este README é atualizado automaticamente a cada 5 tasks concluídas durante a implementação.
+**Nota:** Este README é atualizado automaticamente registrando mudanças e releases.

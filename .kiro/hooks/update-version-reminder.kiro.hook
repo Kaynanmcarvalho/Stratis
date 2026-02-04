@@ -1,14 +1,14 @@
 {
   "enabled": true,
-  "name": "Lembrete: Atualizar Versão",
-  "description": "Lembra o desenvolvedor de atualizar a versão no Sidebar.tsx antes de fazer commit ou push para o Git",
+  "name": "Lembrete: Atualizar Versão e README se tiver no horario ou na regra",
+  "description": "Lembra o desenvolvedor de atualizar a versão no Sidebar.tsx ou se tiver local no perfil antes de fazer commit ou push para o Git .",
   "version": "1",
   "when": {
     "type": "promptSubmit"
   },
   "then": {
     "type": "askAgent",
-    "prompt": "IMPORTANTE: Antes de fazer commit ou push, verifique se a versão foi atualizada no arquivo frontend/src/components/common/Sidebar.tsx e Perfil se ouver algum canto. A versão atual é Beta 1.30.8 e deve ser incrementada conforme o tipo de mudança (patch para bugs, minor para features, major para breaking changes). Também atualize a data no atributo title. Confirme se isso foi feito ou se precisa fazer agora. "
+    "prompt": "IMPORTANTE: Antes de fazer commit ou push, verifique se a versão foi atualizada no arquivo frontend/src/components/common/Sidebar.tsx e Perfil se ouver algum canto. A versão atual é Beta 1.30.8 e deve ser incrementada conforme o tipo de mudança (patch para bugs, minor para features, major para breaking changes). Também atualize a data no atributo title. Confirme se isso foi feito ou se precisa fazer agora. \nLeia o nome dos commits e leia o README.md e atualiza o README com as novidades que nele nao tem e datas dos releases (novidades) e de quem fez o commit do que atualizou quando for do Renier ve oque ele fez e diz no README se foi correção é de que ou implem,entou ou melhoria tu deve fazer isso no horario 11:40 a 12:20 e 17:40 as 18:20 e 22:00 as 00:00 se nao tiver nesses horaros nao precisa."
   },
   "workspaceFolderName": "Straxis",
   "shortName": "update-version-reminder"
