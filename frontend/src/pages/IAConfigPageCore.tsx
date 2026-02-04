@@ -97,12 +97,29 @@ const IAConfigPageCore: React.FC = () => {
         iaService.getUsage(),
       ]);
       setConfig(configData);
-      setUsage(usageData);
+      setUsage(usageData || {
+        requestsToday: 0,
+        costToday: 0,
+        requestsMonth: 0,
+        costMonth: 0,
+      });
+      
+      // Se o provider for local, carregar modelos automaticamente
+      if (configData.provider === 'local' && configData.localProvider) {
+        await loadLocalModels(configData.localProvider, configData.localServerUrl);
+      }
     } catch (error) {
       console.error('Erro ao carregar dados IA:', error);
       toast.error({
         title: 'Erro',
         message: 'Erro ao carregar configurações de IA',
+      });
+      // Garantir que usage tenha valores padrão mesmo em caso de erro
+      setUsage({
+        requestsToday: 0,
+        costToday: 0,
+        requestsMonth: 0,
+        costMonth: 0,
       });
     } finally {
       setLoading(false);
@@ -257,6 +274,9 @@ const IAConfigPageCore: React.FC = () => {
         model: config.model,
       });
       
+      // Recarregar dados para atualizar a UI
+      await loadData();
+      
       setShowLocalConfig(false);
       toast.success({
         title: 'Sucesso',
@@ -323,8 +343,35 @@ const IAConfigPageCore: React.FC = () => {
 
   const getCurrentModel = () => {
     if (config.provider === 'local') {
-      const models = PROVIDER_MODELS.local;
-      return models.find(m => m.id === config.model) || models[0] || { id: '', name: 'Nenhum modelo selecionado', description: 'Configure o servidor local' };
+      // Usar localModels ao invés de PROVIDER_MODELS.local
+      if (localModels.length > 0) {
+        const found = localModels.find(m => (m.id || m.name) === config.model);
+        if (found) {
+          return {
+            id: found.id || found.name,
+            name: found.name || found.id,
+            description: found.description || 'Modelo local',
+            category: 'medium',
+          };
+        }
+      }
+      
+      // Se não encontrou mas tem um modelo configurado, mostrar o nome do modelo
+      if (config.model) {
+        return {
+          id: config.model,
+          name: config.model,
+          description: `${config.localProvider || 'Local'} - ${config.localServerUrl || 'servidor padrão'}`,
+          category: 'medium',
+        };
+      }
+      
+      return { 
+        id: '', 
+        name: 'Nenhum modelo selecionado', 
+        description: 'Configure o servidor local',
+        category: 'medium',
+      };
     }
     const models = PROVIDER_MODELS[config.provider];
     return models.find(m => m.id === config.model) || models[0];
@@ -335,6 +382,14 @@ const IAConfigPageCore: React.FC = () => {
       style: 'currency',
       currency: 'BRL',
     }).format(value);
+  };
+
+  // Garantir que usage nunca seja undefined
+  const safeUsage = usage || {
+    requestsToday: 0,
+    costToday: 0,
+    requestsMonth: 0,
+    costMonth: 0,
   };
 
   if (loading) {
@@ -374,10 +429,10 @@ const IAConfigPageCore: React.FC = () => {
               <span className="stat-label">Hoje</span>
             </div>
             <div className="stat-values">
-              <span className="stat-primary">{usage.requestsToday}</span>
+              <span className="stat-primary">{safeUsage.requestsToday}</span>
               <span className="stat-secondary">requisições</span>
             </div>
-            <div className="stat-cost">{formatCurrency(usage.costToday)}</div>
+            <div className="stat-cost">{formatCurrency(safeUsage.costToday)}</div>
           </div>
 
           <div className="stat-card">
@@ -386,10 +441,10 @@ const IAConfigPageCore: React.FC = () => {
               <span className="stat-label">Mês</span>
             </div>
             <div className="stat-values">
-              <span className="stat-primary">{usage.requestsMonth}</span>
+              <span className="stat-primary">{safeUsage.requestsMonth}</span>
               <span className="stat-secondary">requisições</span>
             </div>
-            <div className="stat-cost">{formatCurrency(usage.costMonth)}</div>
+            <div className="stat-cost">{formatCurrency(safeUsage.costMonth)}</div>
           </div>
         </div>
 
