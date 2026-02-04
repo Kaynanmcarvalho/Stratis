@@ -136,15 +136,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ userRole, isOpen = false, onCl
         <div className="sidebar-footer">
           <div 
             className="version-info"
-            title="Última atualização: 03/02/2026 - FEATURE: IA Local Beta v1 (LM Studio, Ollama, Hugging Face)"
+            title="Última atualização: 04/02/2026 - FIX: Dock clique após arrastar + Auth IA routes"
           >
             {!isCollapsed ? (
               <>
                 <span className="version-label">Versão</span>
-                <span className="version-number">Beta 1.33.0</span>
+                <span className="version-number">Beta 1.33.1</span>
               </>
             ) : (
-              <span className="version-number-collapsed">v1.33.0</span>
+              <span className="version-number-collapsed">v1.33.1</span>
             )}
           </div>
         </div>

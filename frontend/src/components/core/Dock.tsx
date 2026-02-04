@@ -200,6 +200,11 @@ export const Dock: React.FC = () => {
     const finalOffset = Math.max(0, Math.min(maxOffset, snappedOffset));
     
     animateToOffset(finalOffset);
+    
+    // Reset drag flag after a short delay to allow click detection
+    setTimeout(() => {
+      hasDraggedRef.current = false;
+    }, 100);
   }, [offset, getMaxOffset, itemWidth, animateToOffset]);
 
   // Mouse events

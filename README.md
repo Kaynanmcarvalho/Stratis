@@ -1314,7 +1314,7 @@ Propriedade privada - Todos os direitos reservados.
 
 **Status do Projeto:** ✅ Beta 1.33.3 - Provedores de IA Expandidos + Correções  
 **Próximo Passo:** Implementar fallbacks de chaves para Alpha v1.1  
-**Desenvolvedor Atual:** Kaynan Moreira  
+**Desenvolvedor Atual:** Kaynan Moreira  e Renier
 **Última Atualização:** 03/02/2026 23:20
 
 **Nota:** Este README é atualizado automaticamente registrando mudanças e releases.

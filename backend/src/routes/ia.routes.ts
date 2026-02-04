@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { iaController } from '../controllers/ia.controller';
+import { authMiddleware } from '../middleware/auth.middleware';
+import { tenantMiddleware } from '../middleware/tenant.middleware';
 import { 
   iaMinuteRateLimit, 
   iaDailyRateLimit,
@@ -7,6 +9,10 @@ import {
 } from '../middleware/rateLimit.middleware';
 
 const router = Router();
+
+// Todas as rotas de IA requerem autenticação
+router.use(authMiddleware);
+router.use(tenantMiddleware);
 
 // POST /api/ia/query - Processar consulta com IA
 // Rate limits: por minuto (empresa) e diário (usuário)
