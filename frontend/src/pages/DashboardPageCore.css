@@ -4,12 +4,13 @@
    ============================================ */
 
 .nerve-center {
-  min-height: 100vh;
   background: #ffffff !important;
   padding: 20px 20px 120px 20px;
   max-width: 600px;
   margin: 0 auto;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  width: 100%;
+  position: relative;
 }
 
 .nerve-center * {

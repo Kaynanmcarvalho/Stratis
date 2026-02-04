@@ -3,21 +3,31 @@
    ============================================ */
 
 .core-layout {
-  min-height: 100vh;
   width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
   background: transparent;
   transition: background-color var(--transition-base);
+  position: relative;
 }
 
 .core-content {
   width: 100%;
   max-width: 100vw;
   min-height: 100vh;
-  overflow-x: hidden;
-  padding-bottom: 3.75rem; /* Space for dock - 60px */
+  padding-bottom: 100px; /* Space for dock */
   background: transparent;
+  position: relative;
+}
+
+/* MOBILE - Garantir scroll natural */
+@media (max-width: 767px) {
+  .core-layout {
+    min-height: auto;
+  }
+  
+  .core-content {
+    min-height: auto;
+  }
 }
 
 /* SPECIFIC PAGE BACKGROUNDS */

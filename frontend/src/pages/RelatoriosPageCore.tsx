@@ -1,6 +1,14 @@
 ﻿import React, { useState } from 'react';
 import { Search, MoreVertical, FileText, Mail, Calendar, User, Package, AlertCircle, XCircle, CheckCircle, X, Download } from 'lucide-react';
 import { Dock } from '../components/core/Dock';
+import { ModalExportarPDF } from '../components/relatorios/ModalExportarPDF';
+import { ModalEnviarEmail } from '../components/relatorios/ModalEnviarEmail';
+import { ModalResumoSemanal } from '../components/relatorios/ModalResumoSemanal';
+import { ModalFechamentoDiario } from '../components/relatorios/ModalFechamentoDiario';
+import { ModalDetalheCliente } from '../components/relatorios/ModalDetalheCliente';
+import { ModalDetalheFuncionario } from '../components/relatorios/ModalDetalheFuncionario';
+import { relatorioService, DadosRelatorioConsolidado } from '../services/relatorio.service';
+import { useAuth } from '../contexts/AuthContext';
 import './RelatoriosPageCore.css';
 
 interface ResumoGeral { totalTrabalhos: number; totalToneladas: number; valorPago: number; valorPendente: number; }
@@ -10,6 +18,7 @@ interface Excecao { id: string; tipo: 'critico' | 'atencao' | 'info'; descricao:
 type PeriodoSelecionado = 'hoje' | 'semana' | 'mes' | 'personalizado';
 
 const RelatoriosPageCore: React.FC = () => {
+  const { user } = useAuth();
   const [periodoSelecionado, setPeriodoSelecionado] = useState<PeriodoSelecionado>('semana');
   const [dataInicio, setDataInicio] = useState<string>('');
   const [dataFim, setDataFim] = useState<string>('');
@@ -18,28 +27,77 @@ const RelatoriosPageCore: React.FC = () => {
   const [mostrarModalExcecao, setMostrarModalExcecao] = useState<Excecao | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [relatorioGerado, setRelatorioGerado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  
+  // Modais
+  const [mostrarModalPDF, setMostrarModalPDF] = useState(false);
+  const [mostrarModalEmail, setMostrarModalEmail] = useState(false);
+  const [mostrarModalResumo, setMostrarModalResumo] = useState(false);
+  const [mostrarModalFechamento, setMostrarModalFechamento] = useState(false);
+  const [clienteSelecionado, setClienteSelecionado] = useState<{ id: string; nome: string } | null>(null);
+  const [funcionarioSelecionado, setFuncionarioSelecionado] = useState<{ id: string; nome: string } | null>(null);
 
-  const [resumoGeral] = useState<ResumoGeral>({ totalTrabalhos: 12, totalToneladas: 385.5, valorPago: 24850, valorPendente: 1200 });
-  const [clientes] = useState<ClienteResumo[]>([
-    { id: '1', nome: 'Armazém Central', trabalhos: 5, toneladas: 125.5, valor: 8450 },
-    { id: '2', nome: 'Distribuidora Norte', trabalhos: 4, toneladas: 98.0, valor: 6200 },
-    { id: '3', nome: 'Logística Sul', trabalhos: 3, toneladas: 162.0, valor: 10200 }
-  ]);
-  const [funcionarios] = useState<FuncionarioResumo[]>([
-    { id: 'f1', nome: 'João Silva', diarias: 5, meias: 2, valor: 850 },
-    { id: 'f2', nome: 'Maria Santos', diarias: 6, meias: 0, valor: 900 },
-    { id: 'f3', nome: 'Pedro Costa', diarias: 4, meias: 1, valor: 675 }
-  ]);
-  const [excecoes] = useState<Excecao[]>([
-    { id: 'e1', tipo: 'critico', descricao: '3 faltas registradas', data: new Date() },
-    { id: 'e2', tipo: 'atencao', descricao: '2 ajustes de tonelagem', data: new Date() },
-    { id: 'e3', tipo: 'info', descricao: '1 trabalho cancelado', data: new Date() }
-  ]);
+  // Dados do relatório
+  const [dadosRelatorio, setDadosRelatorio] = useState<DadosRelatorioConsolidado | null>(null);
 
-  const formatarMoeda = (valor: number): string => `R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const gerarAnalise = () => { setCarregando(true); setTimeout(() => { setCarregando(false); setRelatorioGerado(true); }, 1500); };
-  const selecionarPeriodo = (periodo: PeriodoSelecionado) => { if (periodo === 'personalizado') { setMostrarModalData(true); } else { setPeriodoSelecionado(periodo); setRelatorioGerado(false); } };
-  const confirmarDataPersonalizada = () => { if (!dataInicio || !dataFim) { alert('Selecione as datas'); return; } if (new Date(dataInicio) > new Date(dataFim)) { alert('Data início maior que fim'); return; } setPeriodoSelecionado('personalizado'); setMostrarModalData(false); setRelatorioGerado(false); };
+  const formatarMoeda = (valor: number): string => `R$ ${(valor / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
+  const gerarAnalise = async () => {
+    if (!user?.companyId) {
+      setErro('Usuário não autenticado ou sem empresa associada');
+      return;
+    }
+
+    setCarregando(true);
+    setErro(null);
+    
+    try {
+      const dados = await relatorioService.gerarRelatorioConsolidado(
+        periodoSelecionado,
+        dataInicio ? new Date(dataInicio) : undefined,
+        dataFim ? new Date(dataFim) : undefined,
+        user.companyId
+      );
+      setDadosRelatorio(dados);
+      setRelatorioGerado(true);
+    } catch (error: any) {
+      console.error('Erro ao gerar relatório:', error);
+      setErro(error.message || 'Erro ao gerar relatório. Tente novamente.');
+    } finally {
+      setCarregando(false);
+    }
+  };
+  
+  const selecionarPeriodo = (periodo: PeriodoSelecionado) => { 
+    if (periodo === 'personalizado') { 
+      setMostrarModalData(true); 
+    } else { 
+      setPeriodoSelecionado(periodo); 
+      setRelatorioGerado(false); 
+    } 
+  };
+  
+  const confirmarDataPersonalizada = () => { 
+    if (!dataInicio || !dataFim) { 
+      alert('Selecione as datas'); 
+      return; 
+    } 
+    if (new Date(dataInicio) > new Date(dataFim)) { 
+      alert('Data início maior que fim'); 
+      return; 
+    } 
+    setPeriodoSelecionado('personalizado'); 
+    setMostrarModalData(false); 
+    setRelatorioGerado(false); 
+  };
+
+  const abrirModalCliente = (cliente: ClienteResumo) => {
+    setClienteSelecionado({ id: cliente.id, nome: cliente.nome });
+  };
+
+  const abrirModalFuncionario = (funcionario: FuncionarioResumo) => {
+    setFuncionarioSelecionado({ id: funcionario.id, nome: funcionario.nome });
+  };
 
   return (
     <>
@@ -57,10 +115,10 @@ const RelatoriosPageCore: React.FC = () => {
         {mostrarMenu && (
           <div className="rel-menu-overlay" onClick={() => setMostrarMenu(false)}>
             <div className="rel-menu" onClick={(e) => e.stopPropagation()}>
-              <button className="rel-menu-item" onClick={() => { alert('PDF'); setMostrarMenu(false); }}><Download size={20} /><span>Exportar PDF</span></button>
-              <button className="rel-menu-item" onClick={() => { alert('Email'); setMostrarMenu(false); }}><Mail size={20} /><span>Enviar Email</span></button>
-              <button className="rel-menu-item" onClick={() => { alert('Resumo'); setMostrarMenu(false); }}><Calendar size={20} /><span>Resumo Semanal</span></button>
-              <button className="rel-menu-item" onClick={() => { alert('Fechamento'); setMostrarMenu(false); }}><FileText size={20} /><span>Fechamento Diário</span></button>
+              <button className="rel-menu-item" onClick={() => { setMostrarModalPDF(true); setMostrarMenu(false); }}><Download size={20} /><span>Exportar PDF</span></button>
+              <button className="rel-menu-item" onClick={() => { setMostrarModalEmail(true); setMostrarMenu(false); }}><Mail size={20} /><span>Enviar Email</span></button>
+              <button className="rel-menu-item" onClick={() => { setMostrarModalResumo(true); setMostrarMenu(false); }}><Calendar size={20} /><span>Resumo Semanal</span></button>
+              <button className="rel-menu-item" onClick={() => { setMostrarModalFechamento(true); setMostrarMenu(false); }}><FileText size={20} /><span>Fechamento Diário</span></button>
             </div>
           </div>
         )}
@@ -93,7 +151,7 @@ const RelatoriosPageCore: React.FC = () => {
             {carregando ? <><Search size={20} className="spinning" /><span>Analisando...</span></> : <><Search size={20} /><span>Gerar Análise</span></>}
           </button>
 
-          {!relatorioGerado && !carregando && (
+          {!relatorioGerado && !carregando && !erro && (
             <div className="rel-empty">
               <div className="rel-empty-icon"><FileText size={48} strokeWidth={1.5} /></div>
               <h3 className="rel-empty-title">Nenhuma análise gerada</h3>
@@ -101,22 +159,48 @@ const RelatoriosPageCore: React.FC = () => {
             </div>
           )}
 
-          {relatorioGerado && !carregando && (
+          {erro && !carregando && (
+            <div className="rel-empty">
+              <div className="rel-empty-icon" style={{ background: 'rgba(255, 59, 48, 0.08)', color: '#FF3B30' }}>
+                <AlertCircle size={48} strokeWidth={1.5} />
+              </div>
+              <h3 className="rel-empty-title" style={{ color: '#FF3B30' }}>Erro ao gerar relatório</h3>
+              <p className="rel-empty-desc">{erro}</p>
+              <button 
+                onClick={() => { setErro(null); gerarAnalise(); }}
+                style={{ 
+                  marginTop: '16px',
+                  padding: '12px 24px', 
+                  background: 'linear-gradient(135deg, #007AFF 0%, #0051D5 100%)', 
+                  border: 'none', 
+                  borderRadius: '10px', 
+                  fontWeight: '600', 
+                  fontSize: '15px',
+                  color: '#FFF', 
+                  cursor: 'pointer'
+                }}
+              >
+                Tentar Novamente
+              </button>
+            </div>
+          )}
+
+          {relatorioGerado && !carregando && dadosRelatorio && (
             <div className="rel-resultado">
               <div className="rel-resumo-geral">
-                <div className="rel-resumo-periodo">Período: Semana Atual</div>
+                <div className="rel-resumo-periodo">Período: {dadosRelatorio.periodo}</div>
                 <div className="rel-resumo-grid">
-                  <div className="rel-metrica"><span className="rel-metrica-valor">{resumoGeral.totalTrabalhos}</span><span className="rel-metrica-label">Trabalhos</span></div>
-                  <div className="rel-metrica"><span className="rel-metrica-valor">{resumoGeral.totalToneladas}t</span><span className="rel-metrica-label">Toneladas</span></div>
-                  <div className="rel-metrica"><span className="rel-metrica-valor pago">{formatarMoeda(resumoGeral.valorPago)}</span><span className="rel-metrica-label">Pago</span></div>
-                  <div className="rel-metrica"><span className="rel-metrica-valor pendente">{formatarMoeda(resumoGeral.valorPendente)}</span><span className="rel-metrica-label">Pendente</span></div>
+                  <div className="rel-metrica"><span className="rel-metrica-valor">{dadosRelatorio.totalTrabalhos}</span><span className="rel-metrica-label">Trabalhos</span></div>
+                  <div className="rel-metrica"><span className="rel-metrica-valor">{dadosRelatorio.totalToneladas}t</span><span className="rel-metrica-label">Toneladas</span></div>
+                  <div className="rel-metrica"><span className="rel-metrica-valor pago">{formatarMoeda(dadosRelatorio.valorPago)}</span><span className="rel-metrica-label">Pago</span></div>
+                  <div className="rel-metrica"><span className="rel-metrica-valor pendente">{formatarMoeda(dadosRelatorio.valorPendente)}</span><span className="rel-metrica-label">Pendente</span></div>
                 </div>
               </div>
 
               <div className="rel-secao">
                 <div className="rel-secao-header"><span className="rel-secao-title">Por Cliente</span><User size={18} className="rel-secao-icon" /></div>
-                {clientes.map(c => (
-                  <div key={c.id} className="rel-item" onClick={() => alert(`Cliente: ${c.nome}`)}>
+                {dadosRelatorio.clientes.map(c => (
+                  <div key={c.id} className="rel-item" onClick={() => abrirModalCliente(c)}>
                     <div className="rel-item-content">
                       <h4 className="rel-item-nome">{c.nome}</h4>
                       <p className="rel-item-detalhes">{c.trabalhos} trabalhos  {c.toneladas}t</p>
@@ -128,8 +212,8 @@ const RelatoriosPageCore: React.FC = () => {
 
               <div className="rel-secao">
                 <div className="rel-secao-header"><span className="rel-secao-title">Por Funcionário</span><Package size={18} className="rel-secao-icon" /></div>
-                {funcionarios.map(f => (
-                  <div key={f.id} className="rel-item" onClick={() => alert(`Funcionário: ${f.nome}`)}>
+                {dadosRelatorio.funcionarios.map(f => (
+                  <div key={f.id} className="rel-item" onClick={() => abrirModalFuncionario(f)}>
                     <div className="rel-item-content">
                       <h4 className="rel-item-nome">{f.nome}</h4>
                       <p className="rel-item-detalhes">{f.diarias} diárias  {f.meias} meias</p>
@@ -141,7 +225,7 @@ const RelatoriosPageCore: React.FC = () => {
 
               <div className="rel-excecoes">
                 <div className="rel-excecoes-header"><AlertCircle size={18} /><span>Exceções e Ajustes</span></div>
-                {excecoes.map(e => (
+                {dadosRelatorio.excecoes.map(e => (
                   <div key={e.id} className="rel-excecao-item" onClick={() => setMostrarModalExcecao(e)}>
                     {e.tipo === 'critico' && <XCircle size={16} className="rel-excecao-icon-critical" />}
                     {e.tipo === 'atencao' && <AlertCircle size={16} className="rel-excecao-icon-warning" />}
@@ -184,6 +268,76 @@ const RelatoriosPageCore: React.FC = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Modais de Exportação */}
+        {mostrarModalPDF && dadosRelatorio && (
+          <ModalExportarPDF 
+            onClose={() => setMostrarModalPDF(false)}
+            dados={{
+              periodo: dadosRelatorio.periodo,
+              totalTrabalhos: dadosRelatorio.totalTrabalhos,
+              totalToneladas: dadosRelatorio.totalToneladas,
+              valorPago: dadosRelatorio.valorPago,
+              valorPendente: dadosRelatorio.valorPendente,
+              clientes: dadosRelatorio.clientes,
+              funcionarios: dadosRelatorio.funcionarios
+            }}
+          />
+        )}
+
+        {mostrarModalEmail && dadosRelatorio && (
+          <ModalEnviarEmail 
+            onClose={() => setMostrarModalEmail(false)}
+            periodo={dadosRelatorio.periodo}
+          />
+        )}
+
+        {mostrarModalResumo && dadosRelatorio && (
+          <ModalResumoSemanal 
+            onClose={() => setMostrarModalResumo(false)}
+            dados={{
+              periodo: dadosRelatorio.periodo,
+              totalTrabalhos: dadosRelatorio.totalTrabalhos,
+              totalToneladas: dadosRelatorio.totalToneladas,
+              valorPago: dadosRelatorio.valorPago,
+              valorPendente: dadosRelatorio.valorPendente,
+              clientes: dadosRelatorio.clientes,
+              funcionarios: dadosRelatorio.funcionarios
+            }}
+          />
+        )}
+
+        {mostrarModalFechamento && dadosRelatorio && (
+          <ModalFechamentoDiario 
+            onClose={() => setMostrarModalFechamento(false)}
+            dados={{
+              periodo: dadosRelatorio.periodo,
+              totalTrabalhos: dadosRelatorio.totalTrabalhos,
+              totalToneladas: dadosRelatorio.totalToneladas,
+              valorPago: dadosRelatorio.valorPago,
+              valorPendente: dadosRelatorio.valorPendente
+            }}
+          />
+        )}
+
+        {/* Modais de Detalhes */}
+        {clienteSelecionado && dadosRelatorio && (
+          <ModalDetalheCliente 
+            onClose={() => setClienteSelecionado(null)}
+            clienteId={clienteSelecionado.id}
+            clienteNome={clienteSelecionado.nome}
+            periodo={dadosRelatorio.periodo}
+          />
+        )}
+
+        {funcionarioSelecionado && dadosRelatorio && (
+          <ModalDetalheFuncionario 
+            onClose={() => setFuncionarioSelecionado(null)}
+            funcionarioId={funcionarioSelecionado.id}
+            funcionarioNome={funcionarioSelecionado.nome}
+            periodo={dadosRelatorio.periodo}
+          />
         )}
       </div>
       <Dock />

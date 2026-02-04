@@ -224,8 +224,11 @@ export const Dock: React.FC = () => {
   }, [handleDragStart]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (e.touches.length === 1) {
-      e.preventDefault();
+    if (e.touches.length === 1 && isDraggingRef.current) {
+      // Só prevenir default se realmente estiver arrastando o dock
+      if (hasDraggedRef.current) {
+        e.preventDefault();
+      }
       handleDragMove(e.touches[0].clientX);
     }
   }, [handleDragMove]);
@@ -238,8 +241,9 @@ export const Dock: React.FC = () => {
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    // Passive false apenas quando necessário
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);

@@ -30,6 +30,9 @@ export default defineConfig({
       },
     }),
   ],
+  optimizeDeps: {
+    include: ['jspdf', 'jspdf-autotable', 'canvg', 'html2canvas', 'dompurify']
+  },
   server: {
     port: 3000,
     host: true,

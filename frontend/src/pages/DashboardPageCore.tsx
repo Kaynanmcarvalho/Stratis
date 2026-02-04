@@ -204,7 +204,7 @@ const DashboardPageCore: React.FC = () => {
 
   return (
     <>
-      <div className="nerve-center" style={{ minHeight: '100vh', background: '#ffffff', padding: '20px 20px 120px 20px', maxWidth: '600px', margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif' }}>
+      <div className="nerve-center" style={{ background: '#ffffff', padding: '20px 20px 120px 20px', maxWidth: '600px', margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif' }}>
         {/* BARRA DE STATUS */}
         <div className="status-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
           <div className="status-left" style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
@@ -992,8 +992,6 @@ const DashboardPageCore: React.FC = () => {
           </div>
         </div>
       )}
-
-      <Dock />
     </>
   );
 };

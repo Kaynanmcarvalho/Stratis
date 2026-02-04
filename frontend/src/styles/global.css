@@ -203,6 +203,7 @@ html {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-y: scroll; /* Sempre permitir scroll vertical */
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
@@ -211,6 +212,7 @@ body {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-y: scroll; /* Sempre permitir scroll vertical */
   font-family: var(--font-text);
   font-size: var(--text-body);
   font-weight: 500;
@@ -218,9 +220,10 @@ body {
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* REMOVED: background: #FFFFFF; - Let pages control their own backgrounds */
   color: var(--color-text-primary);
   transition: background-color var(--transition-base), color var(--transition-base);
+  position: relative;
+  min-height: 100vh;
 }
 
 #root {
@@ -228,6 +231,7 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   min-height: 100vh;
+  position: relative;
 }
 
 /* ============================================

@@ -7,6 +7,8 @@
   z-index: 1500;
   padding: 0 16px 16px 16px;
   pointer-events: none;
+  /* Não interferir no scroll da página */
+  touch-action: none;
 }
 
 @media (min-width: 768px) {
@@ -31,7 +33,8 @@
   position: relative;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: pan-y pinch-zoom;
+  /* Permitir scroll vertical da página, mas capturar horizontal para o dock */
+  touch-action: pan-y;
 }
 
 .dock.dragging {
