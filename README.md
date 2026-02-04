@@ -2,12 +2,10 @@
 
 **Data de Criação:** 26/01/2026  
 **Última Atualização:** 03/02/2026  
-**Desenvolvedor Principal:** Kaynan Moreira  
-**Colaborador:** Renier (a partir da task 6)  
+**Desenvolvedores Principais:** Kaynan e Renier
 **Versão:** Beta 1.33.3  
 **Status:** Em Desenvolvimento Ativo ✅
 
-> **📝 Nota:** Este README é atualizado automaticamente pela IA a cada 5 tasks concluídas, registrando as mudanças baseadas no desenvolvedor logado (Kaynan ou Renier).
 
 ---
 
