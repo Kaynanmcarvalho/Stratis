@@ -3,10 +3,20 @@ import { db } from '../config/firebase.config';
 import { Funcionario, FuncionarioStats } from '../models/funcionario.model';
 
 export class FuncionarioController {
+  private getAuth(req: Request, res: Response) {
+    if (!req.auth) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return null;
+    }
+    return req.auth;
+  }
+
   // GET /funcionarios - Listar funcionários da empresa
   async list(req: Request, res: Response) {
     try {
-      const { companyId } = req.auth;
+      const auth = this.getAuth(req, res);
+      if (!auth) return;
+      const { companyId } = auth;
       console.log('📋 [FUNCIONARIOS] GET /funcionarios - companyId:', companyId);
 
       const snapshot = await db
@@ -36,7 +46,9 @@ export class FuncionarioController {
   // GET /funcionarios/:id - Obter funcionário específico
   async get(req: Request, res: Response) {
     try {
-      const { companyId } = req.auth;
+      const auth = this.getAuth(req, res);
+      if (!auth) return;
+      const { companyId } = auth;
       const { id } = req.params;
 
       const doc = await db
@@ -63,7 +75,9 @@ export class FuncionarioController {
   // POST /funcionarios - Criar funcionário
   async create(req: Request, res: Response) {
     try {
-      const { companyId, userId } = req.auth;
+      const auth = this.getAuth(req, res);
+      if (!auth) return;
+      const { companyId } = auth;
       const { nome, cpf, telefone } = req.body;
 
       // Validação
@@ -96,7 +110,9 @@ export class FuncionarioController {
   // PUT /funcionarios/:id - Atualizar funcionário
   async update(req: Request, res: Response) {
     try {
-      const { companyId } = req.auth;
+      const auth = this.getAuth(req, res);
+      if (!auth) return;
+      const { companyId } = auth;
       const { id } = req.params;
       const { nome, cpf, telefone, active } = req.body;
 
@@ -139,7 +155,9 @@ export class FuncionarioController {
   // DELETE /funcionarios/:id - Soft delete funcionário
   async delete(req: Request, res: Response) {
     try {
-      const { companyId } = req.auth;
+      const auth = this.getAuth(req, res);
+      if (!auth) return;
+      const { companyId } = auth;
       const { id } = req.params;
 
       const docRef = db.collection(`companies/${companyId}/funcionarios`).doc(id);
@@ -169,7 +187,9 @@ export class FuncionarioController {
   // GET /funcionarios/:id/stats - Obter estatísticas do funcionário
   async getStats(req: Request, res: Response) {
     try {
-      const { companyId } = req.auth;
+      const auth = this.getAuth(req, res);
+      if (!auth) return;
+      const { companyId } = auth;
       const { id } = req.params;
       const { startDate, endDate } = req.query;
 
@@ -183,8 +203,12 @@ export class FuncionarioController {
         return res.status(404).json({ error: 'Funcionario not found' });
       }
 
-      const funcionario = funcionarioDoc.data();
+      const funcionario = funcionarioDoc.data() as Funcionario | undefined;
       if (funcionario?.deletedAt) {
+        return res.status(404).json({ error: 'Funcionario not found' });
+      }
+
+      if (!funcionario) {
         return res.status(404).json({ error: 'Funcionario not found' });
       }
 

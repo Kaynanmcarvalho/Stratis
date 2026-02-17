@@ -8,20 +8,12 @@ import { Request, Response } from 'express';
 import { offlineSyncService } from '../services/offlineSync.service';
 import { PendingOperation } from '../models/documentVersion.model';
 
-interface AuthRequest extends Request {
-  auth?: {
-    userId: string;
-    companyId: string;
-    role: string;
-  };
-}
-
 export class OfflineSyncController {
   /**
    * POST /api/offline-sync/queue
    * Adiciona operação à fila de sincronização
    */
-  async queueOperation(req: AuthRequest, res: Response): Promise<void> {
+  async queueOperation(req: Request, res: Response): Promise<void> {
     try {
       const { companyId, userId } = req.auth || {};
       const { type, collection, documentId, data } = req.body;
@@ -70,7 +62,7 @@ export class OfflineSyncController {
    * POST /api/offline-sync/sync
    * Sincroniza todas as operações pendentes
    */
-  async syncOperations(req: AuthRequest, res: Response): Promise<void> {
+  async syncOperations(req: Request, res: Response): Promise<void> {
     try {
       const { companyId, userId } = req.auth || {};
 
@@ -101,7 +93,7 @@ export class OfflineSyncController {
    * GET /api/offline-sync/pending
    * Obtém operações pendentes do usuário
    */
-  async getPendingOperations(req: AuthRequest, res: Response): Promise<void> {
+  async getPendingOperations(req: Request, res: Response): Promise<void> {
     try {
       const { companyId, userId } = req.auth || {};
 

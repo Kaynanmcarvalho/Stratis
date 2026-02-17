@@ -43,6 +43,7 @@ export const authMiddleware = async (
           permissions: [],
           createdAt: new Date(),
           updatedAt: new Date(),
+          deletedAt: null,
         } as User,
       };
       next();
@@ -143,6 +144,9 @@ export const requireAdminPlatform = (
 
   next();
 };
+
+// Alias para compatibilidade retroativa com rotas legadas
+export const requireAdmin = requireAdminPlatform;
 
 /**
  * Middleware para verificar se usuário é Dono da Empresa

@@ -9,8 +9,8 @@ export class LogService {
   static async createLog(logData: Partial<Log>): Promise<string> {
     try {
       const log = LogModel.create(logData);
-      const logId = await FirestoreService.create('logs', LogModel.toFirestore(log));
-      return logId;
+      const created = await FirestoreService.create('logs', LogModel.toFirestore(log));
+      return created.id;
     } catch (error) {
       console.error('Erro ao criar log:', error);
       throw error;
@@ -204,3 +204,8 @@ export class LogService {
     return this.queryLogs({ startDate, endDate, companyId, limit });
   }
 }
+
+// Compatibilidade retroativa para chamadas legadas: logService.create(...)
+export const logService = {
+  create: LogService.createLog.bind(LogService),
+};

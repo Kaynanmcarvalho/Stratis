@@ -7,6 +7,10 @@ export interface User {
   role: 'admin_platform' | 'owner' | 'user';
   permissions: Permission[];
   active: boolean;
+  telefone?: string | null;
+  funcao?: string | null;
+  dataAdmissao?: Date | null;
+  diariaCentavos?: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;

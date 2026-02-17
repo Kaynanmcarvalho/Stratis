@@ -17,6 +17,12 @@ import { logService } from './log.service';
 class RateLimitService {
   private readonly COLLECTION = 'rateLimitCounters';
 
+  private toDate(value: any): Date {
+    if (value instanceof Date) return value;
+    if (value && typeof value.toDate === 'function') return value.toDate();
+    return new Date(value);
+  }
+
   /**
    * Verifica se uma requisição está dentro do rate limit
    */
@@ -40,11 +46,13 @@ class RateLimitService {
     }
 
     const counter = counterDoc.data() as RateLimitCounter;
+    const windowStart = this.toDate((counter as any).windowStart);
+    const lastRequest = this.toDate((counter as any).lastRequest);
     const windowDuration = this.getWindowDuration(type);
     const limit = this.getLimit(type, limits);
 
     // Verificar se a janela expirou
-    const windowEnd = new Date(counter.windowStart.getTime() + windowDuration);
+    const windowEnd = new Date(windowStart.getTime() + windowDuration);
     if (now > windowEnd) {
       // Janela expirou - resetar contador
       return { allowed: true };
@@ -52,7 +60,7 @@ class RateLimitService {
 
     // Verificar cooldown (apenas para WhatsApp)
     if (type === 'whatsapp_cooldown') {
-      const timeSinceLastRequest = now.getTime() - counter.lastRequest.getTime();
+      const timeSinceLastRequest = now.getTime() - lastRequest.getTime();
       const cooldownMs = limits.whatsappCooldownSeconds * 1000;
       
       if (timeSinceLastRequest < cooldownMs) {
@@ -60,7 +68,7 @@ class RateLimitService {
         return {
           allowed: false,
           retryAfter,
-          resetAt: new Date(counter.lastRequest.getTime() + cooldownMs)
+          resetAt: new Date(lastRequest.getTime() + cooldownMs)
         };
       }
       return { allowed: true };
@@ -102,8 +110,8 @@ class RateLimitService {
       // Criar novo contador
       const newCounter: Omit<RateLimitCounter, 'id'> = {
         companyId,
-        userId,
-        phoneNumber,
+        ...(userId !== undefined ? { userId } : {}),
+        ...(phoneNumber !== undefined ? { phoneNumber } : {}),
         type,
         count: 1,
         windowStart: now,
@@ -116,8 +124,9 @@ class RateLimitService {
     }
 
     const counter = counterDoc.data() as RateLimitCounter;
+    const windowStart = this.toDate((counter as any).windowStart);
     const windowDuration = this.getWindowDuration(type);
-    const windowEnd = new Date(counter.windowStart.getTime() + windowDuration);
+    const windowEnd = new Date(windowStart.getTime() + windowDuration);
 
     if (now > windowEnd) {
       // Janela expirou - resetar contador

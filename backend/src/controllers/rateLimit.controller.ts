@@ -9,20 +9,12 @@ import { firestore } from '../config/firebase.config';
 import { RateLimits, DEFAULT_RATE_LIMITS } from '../models/rateLimit.model';
 import { logService } from '../services/log.service';
 
-interface AuthRequest extends Request {
-  auth?: {
-    userId: string;
-    companyId: string;
-    role: string;
-  };
-}
-
 export class RateLimitController {
   /**
    * GET /api/rate-limits/:companyId
    * Obtém configuração de rate limits de uma empresa
    */
-  async getRateLimits(req: AuthRequest, res: Response): Promise<void> {
+  async getRateLimits(req: Request, res: Response): Promise<void> {
     try {
       const { companyId } = req.params;
       const { role, companyId: userCompanyId } = req.auth || {};
@@ -66,7 +58,7 @@ export class RateLimitController {
    * PUT /api/rate-limits/:companyId
    * Atualiza configuração de rate limits de uma empresa (Admin apenas)
    */
-  async updateRateLimits(req: AuthRequest, res: Response): Promise<void> {
+  async updateRateLimits(req: Request, res: Response): Promise<void> {
     try {
       const { companyId } = req.params;
       const { role, userId } = req.auth || {};

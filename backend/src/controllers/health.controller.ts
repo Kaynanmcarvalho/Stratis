@@ -7,20 +7,12 @@
 import { Request, Response } from 'express';
 import { healthService } from '../services/health.service';
 
-interface AuthRequest extends Request {
-  auth?: {
-    userId: string;
-    companyId: string;
-    role: string;
-  };
-}
-
 export class HealthController {
   /**
    * GET /api/health
    * Verifica saúde de todos os serviços (Admin apenas)
    */
-  async checkHealth(req: AuthRequest, res: Response): Promise<void> {
+  async checkHealth(req: Request, res: Response): Promise<void> {
     try {
       const { role } = req.auth || {};
 
@@ -49,7 +41,7 @@ export class HealthController {
    * GET /api/health/company/:companyId
    * Verifica saúde dos serviços para uma empresa específica
    */
-  async checkCompanyHealth(req: AuthRequest, res: Response): Promise<void> {
+  async checkCompanyHealth(req: Request, res: Response): Promise<void> {
     try {
       const { companyId } = req.params;
       const { role, companyId: userCompanyId } = req.auth || {};

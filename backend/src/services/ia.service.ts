@@ -4,7 +4,7 @@ import { localAIService } from './localAI.service';
 import admin from 'firebase-admin';
 import { retryWithBackoff, isRetryableError } from '../utils/retry.util';
 import { notificationService } from './notification.service';
-import { logService } from './log.service';
+import { LogService } from './log.service';
 
 interface IAQueryResult {
   response: string;
@@ -155,7 +155,7 @@ class IAService {
     };
     } catch (error) {
       // Log do erro
-      await logService.create({
+      await LogService.createLog({
         companyId,
         userId,
         type: 'ia_usage',
@@ -186,7 +186,7 @@ class IAService {
   private async recordUsage(data: {
     companyId: string;
     userId: string;
-    provider: 'openai' | 'gemini';
+    provider: 'openai' | 'gemini' | 'local';
     model: string;
     modelCategory: 'cheap' | 'medium' | 'expensive';
     tokensUsed: number;

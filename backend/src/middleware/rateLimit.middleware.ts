@@ -8,19 +8,11 @@ import { Request, Response, NextFunction } from 'express';
 import { rateLimitService } from '../services/rateLimit.service';
 import { RateLimitType } from '../models/rateLimit.model';
 
-interface AuthRequest extends Request {
-  auth?: {
-    userId: string;
-    companyId: string;
-    role: string;
-  };
-}
-
 /**
  * Middleware genérico de rate limiting
  */
 export function rateLimitMiddleware(type: RateLimitType) {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { companyId, userId } = req.auth || {};
 
