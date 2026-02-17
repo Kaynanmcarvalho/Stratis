@@ -8,8 +8,11 @@ import { RelatorioData, FiltrosRelatorio } from '../../types/relatorios.types';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { LoadingState } from '../ui/LoadingState';
 import { ErrorState } from '../ui/ErrorState';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const RelatorioManager: React.FC = () => {
+  const { user } = useAuth();
+  const companyId = user?.companyId || 'dev-company-id';
   const [relatorio, setRelatorio] = useState<RelatorioData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +24,7 @@ export const RelatorioManager: React.FC = () => {
       setError(null);
 
       // Usar novo serviço consolidado
-      const data = await relatorioService.gerarRelatorioConsolidado(filters);
+      const data = await relatorioService.gerarRelatorioConsolidado(companyId, filters);
 
       setRelatorio(data);
     } catch (err: any) {

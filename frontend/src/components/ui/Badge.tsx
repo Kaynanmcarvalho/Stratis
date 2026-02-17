@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type BadgeVariant = 'success' | 'error' | 'warning' | 'info' | 'neutral';
+export type BadgeVariant = 'success' | 'error' | 'warning' | 'info' | 'neutral' | 'primary';
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -16,6 +16,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   warning: 'bg-warning-50 text-warning-700 border-warning-200 dark:bg-warning-900/20 dark:text-warning-500 dark:border-warning-800',
   info: 'bg-info-50 text-info-700 border-info-200 dark:bg-info-900/20 dark:text-info-500 dark:border-info-800',
   neutral: 'bg-neutral-100 text-neutral-700 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700',
+  primary: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800',
 };
 
 const sizeStyles: Record<BadgeSize, string> = {

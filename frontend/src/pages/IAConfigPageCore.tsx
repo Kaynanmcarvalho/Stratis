@@ -7,7 +7,7 @@ import { useToast } from '../hooks/useToast';
 import './IAConfigPageCore.css';
 
 // Definição dos modelos disponíveis por provedor
-const PROVIDER_MODELS = {
+const PROVIDER_MODELS: Record<string, { id: string; name: string; description: string; category: string }[]> = {
   openai: [
     { id: 'gpt-4.1', name: 'GPT-4.1', description: 'Mais avançado e preciso', category: 'expensive' },
     { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Balanceado custo/performance', category: 'medium' },

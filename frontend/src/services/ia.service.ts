@@ -31,6 +31,7 @@ class IAService {
       return {
         enabled: true,
         provider: 'openai',
+        model: 'gpt-4.1-mini',
         autoResponse: true,
         costLimit: 100,
         antiHallucination: true,
@@ -44,8 +45,8 @@ class IAService {
 
   async getUsage(): Promise<IAUsage> {
     try {
-      const response = await apiService.get<{ data: IAUsage }>(`${this.baseUrl}/usage`);
-      return response.data;
+      const response = await apiService.get<{ usage: IAUsage }>(`${this.baseUrl}/usage`);
+      return response.usage;
     } catch (error) {
       console.error('Erro ao carregar usage IA:', error);
       // Retornar usage zerado se API falhar

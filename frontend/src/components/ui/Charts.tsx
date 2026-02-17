@@ -41,7 +41,10 @@ const PIE_COLORS = [
 ];
 
 // Custom tooltip
-interface CustomTooltipProps extends TooltipProps<any, any> {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
   formatter?: (value: any) => string;
 }
 

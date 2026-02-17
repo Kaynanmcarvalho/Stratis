@@ -106,7 +106,7 @@ const EmpresasPageCore: React.FC = () => {
       setLoading(true);
 
       // Carregar empresas
-      const empresasData = await empresaService.listar();
+      const empresasData: any[] = await empresaService.listar();
       
       // Separar empresa plataforma das empresas clientes
       const platform = empresasData.find((emp: any) => emp.isPlatform || emp.id === 'platform');

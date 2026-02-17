@@ -264,8 +264,8 @@ const EquipePageCore: React.FC = () => {
 
     try {
       const validacao = validarPonto(
-        tipo,
         funcionario.pontosHoje,
+        tipo,
         localizacaoAtual
       );
 
@@ -278,11 +278,10 @@ const EquipePageCore: React.FC = () => {
       }
 
       await registrarPonto(
-        companyId,
         funcId,
-        user?.uid || 'system',
         tipo,
-        localizacaoAtual
+        localizacaoAtual,
+        companyId
       );
 
       await carregarFuncionarios();

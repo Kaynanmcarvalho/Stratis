@@ -20,6 +20,7 @@ import {
 import { Dock } from '../components/core/Dock';
 import { AutocompleteCliente } from '../components/common/AutocompleteCliente';
 import { trabalhoService } from '../services/trabalho.service';
+import { Trabalho } from '../types/trabalho.types';
 import './DashboardPageCore.css';
 import './AgendamentosPageCore.css'; // Estilos do modal
 
@@ -156,16 +157,16 @@ const DashboardPageCore: React.FC = () => {
 
     try {
       // Criar trabalho no Firebase
-      const trabalhoData = {
-        data: new Date().toISOString(),
-        tipo: novoTrabalho.tipo,
+      const trabalhoData: Partial<Trabalho> = {
+        data: new Date(),
+        tipo: novoTrabalho.tipo as 'carga' | 'descarga',
         tonelagem: toneladas,
         valorRecebidoCentavos: 0,
         funcionarios: [],
         totalPagoCentavos: 0,
         lucroCentavos: 0,
-        clienteNome: novoTrabalho.cliente, // Salvar nome do cliente
-        localDescricao: novoTrabalho.local, // Salvar descrição do local
+        clienteNome: novoTrabalho.cliente,
+        localDescricao: novoTrabalho.local,
         observacoes: `Cliente: ${novoTrabalho.cliente} | Local: ${novoTrabalho.local}`,
       };
 

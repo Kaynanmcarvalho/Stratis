@@ -105,7 +105,7 @@ export const RelatorioTable: React.FC<RelatorioTableProps> = ({ relatorio }) => 
                       <Badge variant="primary">{trabalho.tipo}</Badge>
                     </td>
                     <td className="py-4 px-4 text-center">
-                      <Badge variant={trabalho.status === 'completo' ? 'success' : 'warning'}>
+                      <Badge variant={trabalho.status === 'concluido' ? 'success' : 'warning'}>
                         {trabalho.status}
                       </Badge>
                     </td>

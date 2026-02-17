@@ -33,10 +33,10 @@ export const EmpresaList: React.FC<EmpresaListProps> = ({ onEdit, onDelete, onTo
       // Converter datas do Firestore Timestamp para Date
       const empresasWithDates = data.map(empresa => ({
         ...empresa,
-        planStartDate: empresa.planStartDate?.toDate ? empresa.planStartDate.toDate() : new Date(empresa.planStartDate),
-        planEndDate: empresa.planEndDate?.toDate ? empresa.planEndDate.toDate() : new Date(empresa.planEndDate),
-        createdAt: empresa.createdAt?.toDate ? empresa.createdAt.toDate() : new Date(empresa.createdAt),
-        updatedAt: empresa.updatedAt?.toDate ? empresa.updatedAt.toDate() : new Date(empresa.updatedAt),
+        planStartDate: (empresa.planStartDate as any)?.toDate ? (empresa.planStartDate as any).toDate() : new Date(empresa.planStartDate),
+        planEndDate: (empresa.planEndDate as any)?.toDate ? (empresa.planEndDate as any).toDate() : new Date(empresa.planEndDate),
+        createdAt: (empresa.createdAt as any)?.toDate ? (empresa.createdAt as any).toDate() : new Date(empresa.createdAt),
+        updatedAt: (empresa.updatedAt as any)?.toDate ? (empresa.updatedAt as any).toDate() : new Date(empresa.updatedAt),
       }));
       
       setEmpresas(empresasWithDates);
@@ -72,8 +72,8 @@ export const EmpresaList: React.FC<EmpresaListProps> = ({ onEdit, onDelete, onTo
       let endDate: Date;
       
       // Converter planEndDate para Date se necessário
-      if (empresa.planEndDate?.toDate && typeof empresa.planEndDate.toDate === 'function') {
-        endDate = empresa.planEndDate.toDate();
+      if ((empresa.planEndDate as any)?.toDate && typeof (empresa.planEndDate as any).toDate === 'function') {
+        endDate = (empresa.planEndDate as any).toDate();
       } else {
         endDate = new Date(empresa.planEndDate);
       }

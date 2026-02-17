@@ -80,7 +80,7 @@ export const FuncionarioManager: React.FC = () => {
       )}
 
       {showStats && statsFuncionarioId && (
-        <Modal isOpen={showStats} onClose={handleCloseStats} title="Estatísticas do Funcionário">
+        <Modal open={showStats} onOpenChange={(open) => { if (!open) handleCloseStats(); }} title="Estatísticas do Funcionário">
           <FuncionarioStats
             funcionarioId={statsFuncionarioId}
             onClose={handleCloseStats}

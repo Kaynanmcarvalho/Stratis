@@ -145,9 +145,9 @@ const FuncionariosPageCore: React.FC = () => {
       
       // Buscar do Firestore diretamente
       const { getFirestore, collection, query, where, getDocs } = await import('firebase/firestore');
-      const { app } = await import('../config/firebase.config');
+      const firebaseConfig = await import('../config/firebase.config');
       
-      const db = getFirestore(app);
+      const db = getFirestore(firebaseConfig.default);
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('companyId', '==', companyId));
       const querySnapshot = await getDocs(q);
@@ -590,9 +590,9 @@ const FuncionariosPageCore: React.FC = () => {
       
       // Atualizar no Firestore
       const { getFirestore, doc, updateDoc } = await import('firebase/firestore');
-      const { app } = await import('../config/firebase.config');
+      const firebaseConfig = await import('../config/firebase.config');
       
-      const db = getFirestore(app);
+      const db = getFirestore(firebaseConfig.default);
       const userRef = doc(db, 'users', editingFuncionario.id);
       
       await updateDoc(userRef, {
@@ -1216,7 +1216,7 @@ const FuncionariosPageCore: React.FC = () => {
                     placeholder="0,00"
                     min="0"
                     step="0.01"
-                    value={formData.diaria === '' ? '' : formData.diaria}
+                    value={(formData.diaria as any) === '' ? '' : formData.diaria}
                     onChange={(e) => handleInputChange('diaria', e.target.value === '' ? '' as any : parseFloat(e.target.value) || 0)}
                   />
                   <span className="form-hint">Valor que o funcionário recebe por dia trabalhado</span>
@@ -1400,7 +1400,7 @@ const FuncionariosPageCore: React.FC = () => {
                     placeholder="0,00"
                     min="0"
                     step="0.01"
-                    value={formData.diaria === '' ? '' : formData.diaria}
+                    value={(formData.diaria as any) === '' ? '' : formData.diaria}
                     onChange={(e) => handleInputChange('diaria', e.target.value === '' ? '' as any : parseFloat(e.target.value) || 0)}
                   />
                   <span className="form-hint">Valor que o funcionário recebe por dia trabalhado</span>

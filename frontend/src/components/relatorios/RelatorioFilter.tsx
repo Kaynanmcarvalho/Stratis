@@ -66,7 +66,6 @@ export const RelatorioFilter: React.FC<RelatorioFilterProps> = ({ onFilter }) =>
     e.preventDefault();
     
     const filters: FiltrosRelatorio = {
-      companyId: companyId || '',
       periodo,
     };
 
@@ -86,9 +85,9 @@ export const RelatorioFilter: React.FC<RelatorioFilterProps> = ({ onFilter }) =>
 
     // Filtros opcionais
     if (clienteId) filters.clienteId = clienteId;
-    if (tipoTrabalho) filters.tipoTrabalho = tipoTrabalho;
+    if (tipoTrabalho) filters.tipo = tipoTrabalho as 'carga' | 'descarga';
     if (funcionarioId) filters.funcionarioId = funcionarioId;
-    if (status !== 'todos') filters.status = status;
+    if (status !== 'todos') filters.status = status as 'pendente' | 'concluido' | 'cancelado' | 'ajustado';
     
     onFilter(filters);
   };

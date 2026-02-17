@@ -3,22 +3,26 @@ import { AlertCircle, XCircle, WifiOff, ServerCrash } from 'lucide-react';
 import { Button } from './Button';
 
 interface ErrorStateProps {
-  title: string;
+  title?: string;
   message: string;
   type?: 'error' | 'warning' | 'network' | 'server';
   actionLabel?: string;
   onAction?: () => void;
+  onRetry?: () => void;
   className?: string;
 }
 
 export const ErrorState: React.FC<ErrorStateProps> = ({
-  title,
+  title = 'Erro',
   message,
   type = 'error',
   actionLabel,
   onAction,
+  onRetry,
   className = '',
 }) => {
+  const resolvedAction = onAction || onRetry;
+  const resolvedLabel = actionLabel || (onRetry ? 'Tentar Novamente' : undefined);
   const icons = {
     error: XCircle,
     warning: AlertCircle,
@@ -56,9 +60,9 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
         {message}
       </p>
       
-      {actionLabel && onAction && (
-        <Button variant="primary" onClick={onAction}>
-          {actionLabel}
+      {resolvedLabel && resolvedAction && (
+        <Button variant="primary" onClick={resolvedAction}>
+          {resolvedLabel}
         </Button>
       )}
     </div>

@@ -264,7 +264,7 @@ const TrabalhosPageCore: React.FC = () => {
       setTrabalhos(trabalhosLocais);
     } catch (error) {
       console.error('❌ [TRABALHOS] Erro ao carregar:', error);
-      console.error('❌ [TRABALHOS] Stack:', error.stack);
+      console.error('❌ [TRABALHOS] Stack:', (error as any)?.stack);
       setTrabalhos([]);
       alert('Erro ao carregar trabalhos');
     } finally {
