@@ -1,0 +1,565 @@
+/* ============================================
+   CENTRO DE PLANEJAMENTO - EDITORIAL
+   Silencioso • Atemporal • Profissional
+   Zero widgets • Zero cards • Pura hierarquia
+   ============================================ */
+
+.planejamento-editorial {
+  min-height: 100vh;
+  background: #FFFFFF;
+  padding-bottom: 100px;
+}
+
+/* ============================================
+   HEADER EDITORIAL - Forte e Minimalista
+   ============================================ */
+
+.editorial-header {
+  position: relative;
+  text-align: center;
+  padding: 48px 24px 32px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+}
+
+.editorial-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  color: #000000;
+  margin: 0 0 12px;
+  line-height: 1.1;
+}
+
+.editorial-subtitle {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #86868b;
+  margin: 0 0 6px;
+}
+
+.editorial-count {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #C7C7CC;
+  margin: 0;
+}
+
+.btn-filtro-float {
+  position: absolute;
+  top: 48px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.04);
+  border: none;
+  border-radius: 18px;
+  color: #3C3C43;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.btn-filtro-float:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.btn-filtro-float:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   NAVEGAÇÃO DE PERÍODO - Apple Style
+   ============================================ */
+
+.periodo-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+}
+
+.periodo-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  color: #007AFF;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.periodo-btn:hover {
+  background: rgba(0, 122, 255, 0.08);
+}
+
+.periodo-btn:active {
+  transform: scale(0.9);
+}
+
+.periodo-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+  min-width: 140px;
+  text-align: center;
+}
+
+/* ============================================
+   TIMELINE VERTICAL - Pura Hierarquia
+   ============================================ */
+
+.timeline-editorial {
+  padding: 32px 24px;
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-entry {
+  display: flex;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+  transition: opacity 200ms ease;
+}
+
+.timeline-entry:last-child {
+  border-bottom: none;
+}
+
+.timeline-entry:hover {
+  opacity: 0.7;
+}
+
+.entry-time {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+  min-width: 52px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  padding-top: 2px;
+}
+
+.entry-content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry-indicator {
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: transparent;
+}
+
+.entry-indicator.critical {
+  background: #FF3B30;
+}
+
+.entry-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.entry-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #86868b;
+}
+
+.entry-type svg {
+  color: #86868b;
+}
+
+.entry-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+}
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.entry-client {
+  font-weight: 500;
+  color: #3C3C43;
+}
+
+.entry-sep {
+  color: #C7C7CC;
+  font-weight: 300;
+}
+
+.entry-location {
+  color: #86868b;
+}
+
+.entry-value {
+  font-weight: 600;
+  color: #34C759;
+}
+
+.entry-conflict {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 13px;
+  color: #FF9500;
+  flex-wrap: wrap;
+}
+
+.entry-conflict svg {
+  flex-shrink: 0;
+}
+
+.conflict-action {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #FF9500;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.conflict-action:hover {
+  background: rgba(255, 149, 0, 0.08);
+}
+
+.conflict-action:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   ESTADO VAZIO - Elegante e Silencioso
+   ============================================ */
+
+.empty-editorial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px;
+}
+
+.empty-icon-minimal {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C7C7CC;
+  margin-bottom: 24px;
+}
+
+.empty-title-minimal {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+}
+
+.empty-subtitle-minimal {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: #86868b;
+  margin: 0 0 32px;
+  max-width: 260px;
+  line-height: 1.4;
+}
+
+.empty-actions-minimal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 240px;
+}
+
+.btn-empty-primary-minimal {
+  padding: 13px 20px;
+  background: #000000;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.btn-empty-primary-minimal:hover {
+  background: #1d1d1f;
+  transform: translateY(-1px);
+}
+
+.btn-empty-primary-minimal:active {
+  transform: scale(0.98);
+}
+
+.btn-empty-secondary-minimal {
+  padding: 12px 20px;
+  background: transparent;
+  color: #007AFF;
+  border: none;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.btn-empty-secondary-minimal:hover {
+  background: rgba(0, 122, 255, 0.06);
+}
+
+.btn-empty-secondary-minimal:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   FAB - Elegante e Discreto
+   ============================================ */
+
+.fab-editorial {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 26px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 90;
+}
+
+.fab-editorial:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.fab-editorial:active {
+  transform: translateY(-1px) scale(0.97);
+}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+
+@media (max-width: 768px) {
+  .editorial-header {
+    padding: 40px 20px 28px;
+  }
+  
+  .editorial-title {
+    font-size: 28px;
+  }
+  
+  .btn-filtro-float {
+    top: 40px;
+    right: 20px;
+  }
+  
+  .periodo-nav {
+    padding: 16px 20px;
+  }
+  
+  .timeline-editorial {
+    padding: 28px 20px;
+  }
+  
+  .timeline-entry {
+    gap: 16px;
+  }
+  
+  .entry-time {
+    min-width: 48px;
+  }
+  
+  .fab-editorial {
+    right: 16px;
+    bottom: 80px;
+  }
+}
+
+/* ============================================
+   ANIMAÇÕES SUAVES
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timeline-entry {
+  animation: fadeIn 300ms ease;
+}
+
+.timeline-entry:nth-child(1) { animation-delay: 0ms; }
+.timeline-entry:nth-child(2) { animation-delay: 50ms; }
+.timeline-entry:nth-child(3) { animation-delay: 100ms; }
+.timeline-entry:nth-child(4) { animation-delay: 150ms; }
+.timeline-entry:nth-child(5) { animation-delay: 200ms; }
+
+
+/* ============================================
+   SWIPE ACTIONS
+   ============================================ */
+
+.timeline-entry-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipe-actions {
+  position: absolute;
+  right: 0;
+  top: 20px;
+  bottom: 20px;
+  display: flex;
+  gap: 8px;
+  padding-right: 16px;
+  align-items: center;
+}
+
+.swipe-action {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.swipe-action.confirm {
+  background: #34C759;
+  color: #FFFFFF;
+}
+
+.swipe-action.cancel {
+  background: #FF3B30;
+  color: #FFFFFF;
+}
+
+.swipe-action:active {
+  transform: scale(0.9);
+}
+
+/* ============================================
+   SEGMENTED CONTROL AJUSTADO
+   ============================================ */
+
+.agenda-segmented-control-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+
+.agenda-segmented-control-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.agenda-segmented-control {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  width: fit-content;
+  min-width: 100%;
+}
+
+.agenda-segment {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #86868b;
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.agenda-segment.active {
+  background: #FFFFFF;
+  color: #1d1d1f;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}

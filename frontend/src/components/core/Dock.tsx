@@ -61,16 +61,16 @@ export const Dock: React.FC = () => {
 
   // Itens do dock com logout
   const dockItems: DockItem[] = [
-    { id: 'dashboard', label: 'Início', icon: LayoutDashboard, path: '/dashboard' },
-    { id: 'trabalhos', label: 'Trabalhos', icon: Package, path: '/trabalhos' },
-    { id: 'agendamentos', label: 'Agenda', icon: Calendar, path: '/agenda' },
-    { id: 'funcionarios', label: 'Equipe', icon: Users, path: '/funcionarios' },
-    { id: 'relatorios', label: 'Relatórios', icon: FileText, path: '/relatorios' },
-    { id: 'clientes', label: 'Clientes', icon: UserCircle, path: '/clientes' },
-    { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, path: '/whatsapp' },
-    { id: 'ia', label: 'IA', icon: Brain, path: '/ia-config' },
-    { id: 'empresas', label: 'Empresas', icon: Building2, path: '/empresas' },
-    { id: 'logs', label: 'Logs', icon: ScrollText, path: '/logs' },
+    { id: 'dashboard', label: 'Início', icon: LayoutDashboard, path: '/app/dashboard' },
+    { id: 'trabalhos', label: 'Trabalhos', icon: Package, path: '/app/trabalhos' },
+    { id: 'agendamentos', label: 'Agenda', icon: Calendar, path: '/app/agenda' },
+    { id: 'funcionarios', label: 'Equipe', icon: Users, path: '/app/funcionarios' },
+    { id: 'relatorios', label: 'Relatórios', icon: FileText, path: '/app/relatorios' },
+    { id: 'clientes', label: 'Clientes', icon: UserCircle, path: '/app/clientes' },
+    { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, path: '/app/whatsapp' },
+    { id: 'ia', label: 'IA', icon: Brain, path: '/app/ia-config' },
+    { id: 'empresas', label: 'Empresas', icon: Building2, path: '/app/empresas' },
+    { id: 'logs', label: 'Logs', icon: ScrollText, path: '/app/logs' },
     { id: 'logout', label: 'Sair', icon: LogOut, action: handleLogout },
   ];
 
@@ -244,8 +244,7 @@ export const Dock: React.FC = () => {
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (e.touches.length === 1 && isDraggingRef.current) {
-      // Só prevenir default se realmente estiver arrastando o dock
-      if (hasDraggedRef.current) {
+      if (hasDraggedRef.current && e.cancelable) {
         e.preventDefault();
       }
       handleDragMove(e.touches[0].clientX);
@@ -255,6 +254,12 @@ export const Dock: React.FC = () => {
   const handleTouchEnd = useCallback(() => {
     handleDragEnd();
   }, [handleDragEnd]);
+
+  // Eventos de drag nos botões para permitir arrastar pelo botão também
+  const handleItemDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    handleDragStart(clientX);
+  }, [handleDragStart]);
 
   // Setup event listeners
   useEffect(() => {
@@ -319,13 +324,11 @@ export const Dock: React.FC = () => {
                 key={item.id}
                 className={`dock-item ${active ? 'active' : ''} ${isLogoutItem ? 'logout-item' : ''}`}
                 onClick={() => handleItemClick(item)}
-                onMouseDown={(e) => e.stopPropagation()}
                 aria-label={item.label}
                 style={{
                   width: `${itemWidth}px`,
                   minWidth: `${itemWidth}px`,
                   maxWidth: `${itemWidth}px`,
-                  pointerEvents: isDragging ? 'none' : 'auto',
                 }}
               >
                 <div className="dock-item-icon">

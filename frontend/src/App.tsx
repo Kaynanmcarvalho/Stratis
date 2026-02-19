@@ -13,9 +13,11 @@ import DashboardPageCore from './pages/DashboardPageCore';
 import TestPage from './pages/TestPage';
 import TrabalhosPageCore from './pages/TrabalhosPageCore';
 import AgendamentosPageCore from './pages/AgendamentosPageCore';
-import FuncionariosPage from './pages/FuncionariosPage';
+import AgendaPage from './pages/AgendaPage';
+import PlanejamentoPage from './pages/PlanejamentoPage';
+import GestaoPessoasPage from './pages/GestaoPessoasPage';
 import RelatoriosPageCore from './pages/RelatoriosPageCore';
-import ClientesPage from './pages/ClientesPage';
+import RelacionamentoReceitaPage from './pages/RelacionamentoReceitaPage';
 import UsuariosPage from './pages/UsuariosPage';
 import EmpresasPageCore from './pages/EmpresasPageCore';
 import WhatsAppPageCore from './pages/WhatsAppPageCore';
@@ -52,10 +54,10 @@ function App() {
             <Route path="test" element={<TestPage />} />
             <Route path="trabalhos" element={<TrabalhosPageCore />} />
             <Route path="agendamentos" element={<AgendamentosPageCore />} />
-            <Route path="agenda" element={<AgendamentosPageCore />} />
-            <Route path="funcionarios" element={<FuncionariosPage />} />
+            <Route path="agenda" element={<PlanejamentoPage />} />
+            <Route path="funcionarios" element={<GestaoPessoasPage />} />
             <Route path="relatorios" element={<RelatoriosPageCore />} />
-            <Route path="clientes" element={<ClientesPage />} />
+            <Route path="clientes" element={<RelacionamentoReceitaPage />} />
             <Route path="cargos" element={<CargosPage />} />
             <Route path="fechamento/config" element={<ConfiguracaoFechamentoPage />} />
             <Route path="fechamento/historico" element={<HistoricoFechamentosPage />} />

@@ -96,7 +96,12 @@ const IAConfigPageCore: React.FC = () => {
         iaService.getConfig(),
         iaService.getUsage(),
       ]);
-      setConfig(configData);
+      
+      // Só atualizar se configData existir e tiver dados válidos
+      if (configData && Object.keys(configData).length > 0) {
+        setConfig(configData);
+      }
+      
       setUsage(usageData || {
         requestsToday: 0,
         costToday: 0,
@@ -105,7 +110,7 @@ const IAConfigPageCore: React.FC = () => {
       });
       
       // Se o provider for local, carregar modelos automaticamente
-      if (configData.provider === 'local' && configData.localProvider) {
+      if (configData?.provider === 'local' && configData?.localProvider) {
         await loadLocalModels(configData.localProvider, configData.localServerUrl);
       }
     } catch (error) {
@@ -342,7 +347,7 @@ const IAConfigPageCore: React.FC = () => {
   };
 
   const getCurrentModel = () => {
-    if (config.provider === 'local') {
+    if (config?.provider === 'local') {
       // Usar localModels ao invés de PROVIDER_MODELS.local
       if (localModels.length > 0) {
         const found = localModels.find(m => (m.id || m.name) === config.model);
@@ -373,8 +378,8 @@ const IAConfigPageCore: React.FC = () => {
         category: 'medium',
       };
     }
-    const models = PROVIDER_MODELS[config.provider];
-    return models.find(m => m.id === config.model) || models[0];
+    const models = PROVIDER_MODELS[config?.provider || 'openai'];
+    return models.find(m => m.id === config?.model) || models[0];
   };
 
   const formatCurrency = (value: number) => {
@@ -415,9 +420,9 @@ const IAConfigPageCore: React.FC = () => {
             <h1 className="page-title">Inteligência Artificial</h1>
             <p className="page-subtitle">Configurações e uso</p>
           </div>
-          <div className={`status-indicator ${config.enabled ? 'active' : 'inactive'}`}>
+          <div className={`status-indicator ${config?.enabled ? 'active' : 'inactive'}`}>
             <span className="status-dot" />
-            <span className="status-text">{config.enabled ? 'Ativo' : 'Inativo'}</span>
+            <span className="status-text">{config?.enabled ? 'Ativo' : 'Inativo'}</span>
           </div>
         </header>
 
@@ -460,12 +465,12 @@ const IAConfigPageCore: React.FC = () => {
                 <div className="control-info">
                   <h3 className="control-title">Sistema de IA</h3>
                   <p className="control-description">
-                    {config.enabled ? 'Sistema ativo e processando' : 'Sistema desativado'}
+                    {config?.enabled ? 'Sistema ativo e processando' : 'Sistema desativado'}
                   </p>
                 </div>
               </div>
               <button
-                className={`toggle-switch ${config.enabled ? 'on' : 'off'}`}
+                className={`toggle-switch ${config?.enabled ? 'on' : 'off'}`}
                 onClick={() => toggleSetting('enabled')}
                 disabled={saving}
                 aria-label="Toggle IA"
@@ -484,7 +489,7 @@ const IAConfigPageCore: React.FC = () => {
 
             <div className="provider-options">
               <button
-                className={`provider-option ${config.provider === 'openai' ? 'selected' : ''}`}
+                className={`provider-option ${config?.provider === 'openai' ? 'selected' : ''}`}
                 onClick={() => updateProvider('openai')}
                 disabled={saving}
               >
@@ -493,12 +498,12 @@ const IAConfigPageCore: React.FC = () => {
                   <span className="provider-description">GPT-4.1, Mini, Nano</span>
                 </div>
                 <div className="provider-check">
-                  {config.provider === 'openai' && <div className="check-mark" />}
+                  {config?.provider === 'openai' && <div className="check-mark" />}
                 </div>
               </button>
 
               <button
-                className={`provider-option ${config.provider === 'gemini' ? 'selected' : ''}`}
+                className={`provider-option ${config?.provider === 'gemini' ? 'selected' : ''}`}
                 onClick={() => updateProvider('gemini')}
                 disabled={saving}
               >
@@ -507,12 +512,12 @@ const IAConfigPageCore: React.FC = () => {
                   <span className="provider-description">3 Pro, 3 Flash, 2.5 Flash</span>
                 </div>
                 <div className="provider-check">
-                  {config.provider === 'gemini' && <div className="check-mark" />}
+                  {config?.provider === 'gemini' && <div className="check-mark" />}
                 </div>
               </button>
 
               <button
-                className={`provider-option ${config.provider === 'openrouter' ? 'selected' : ''}`}
+                className={`provider-option ${config?.provider === 'openrouter' ? 'selected' : ''}`}
                 onClick={() => updateProvider('openrouter')}
                 disabled={saving}
               >
@@ -521,12 +526,12 @@ const IAConfigPageCore: React.FC = () => {
                   <span className="provider-description">Acesso a múltiplos modelos</span>
                 </div>
                 <div className="provider-check">
-                  {config.provider === 'openrouter' && <div className="check-mark" />}
+                  {config?.provider === 'openrouter' && <div className="check-mark" />}
                 </div>
               </button>
 
               <button
-                className={`provider-option ${config.provider === 'kimi' ? 'selected' : ''}`}
+                className={`provider-option ${config?.provider === 'kimi' ? 'selected' : ''}`}
                 onClick={() => updateProvider('kimi')}
                 disabled={saving}
               >
@@ -535,12 +540,12 @@ const IAConfigPageCore: React.FC = () => {
                   <span className="provider-description">K2.5, K2.5 Thinking, K2</span>
                 </div>
                 <div className="provider-check">
-                  {config.provider === 'kimi' && <div className="check-mark" />}
+                  {config?.provider === 'kimi' && <div className="check-mark" />}
                 </div>
               </button>
 
               <button
-                className={`provider-option ${config.provider === 'local' ? 'selected' : ''}`}
+                className={`provider-option ${config?.provider === 'local' ? 'selected' : ''}`}
                 onClick={() => updateProvider('local')}
                 disabled={saving}
               >
@@ -559,7 +564,7 @@ const IAConfigPageCore: React.FC = () => {
                   <span className="provider-description">LM Studio, Ollama, Hugging Face</span>
                 </div>
                 <div className="provider-check">
-                  {config.provider === 'local' && <div className="check-mark" />}
+                  {config?.provider === 'local' && <div className="check-mark" />}
                 </div>
               </button>
             </div>
@@ -590,7 +595,7 @@ const IAConfigPageCore: React.FC = () => {
               />
             </button>
 
-            {showModelSelector && (
+            {showModelSelector && config?.provider && (
               <div className="model-options">
                 {PROVIDER_MODELS[config.provider].map((model) => (
                   <button
@@ -631,7 +636,7 @@ const IAConfigPageCore: React.FC = () => {
                   </div>
                 </div>
                 <button
-                  className={`toggle-switch small ${config.autoResponse ? 'on' : 'off'}`}
+                  className={`toggle-switch small ${config?.autoResponse ? 'on' : 'off'}`}
                   onClick={() => toggleSetting('autoResponse')}
                   disabled={saving}
                 >
@@ -648,7 +653,7 @@ const IAConfigPageCore: React.FC = () => {
                   </div>
                 </div>
                 <button
-                  className={`toggle-switch small ${config.antiHallucination ? 'on' : 'off'}`}
+                  className={`toggle-switch small ${config?.antiHallucination ? 'on' : 'off'}`}
                   onClick={() => toggleSetting('antiHallucination')}
                   disabled={saving}
                 >
@@ -667,7 +672,7 @@ const IAConfigPageCore: React.FC = () => {
 
             <div className="cost-control">
               <div className="cost-display">
-                <span className="cost-value">{formatCurrency(config.costLimit)}</span>
+                <span className="cost-value">{formatCurrency(config?.costLimit)}</span>
                 <span className="cost-label">por mês</span>
               </div>
               <input
@@ -675,7 +680,7 @@ const IAConfigPageCore: React.FC = () => {
                 min="50"
                 max="500"
                 step="50"
-                value={config.costLimit}
+                value={config?.costLimit}
                 onChange={(e) => updateCostLimit(Number(e.target.value))}
                 disabled={saving}
                 className="cost-slider"

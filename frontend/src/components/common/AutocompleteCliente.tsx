@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Loader, Building2, Phone, MapPin, Sparkles } from 'lucide-react';
 import { clienteService, ClienteSugestao } from '../../services/cliente.service';
 import { useAuth } from '../../contexts/AuthContext';
@@ -28,6 +29,7 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [mounted, setMounted] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -36,6 +38,42 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Atualizar posição do dropdown
+  useEffect(() => {
+    if (mostrarSugestoes && inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  }, [mostrarSugestoes]);
+
+  // Atualizar posição ao scroll/resize
+  useEffect(() => {
+    if (!mostrarSugestoes) return;
+
+    const updatePosition = () => {
+      if (inputRef.current) {
+        const rect = inputRef.current.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + window.scrollY + 8,
+          left: rect.left + window.scrollX,
+          width: rect.width
+        });
+      }
+    };
+
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [mostrarSugestoes]);
 
   // Buscar clientes com debounce
   useEffect(() => {
@@ -210,10 +248,13 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
             maxHeight: '320px',
             overflowY: 'auto',
             overflowX: 'hidden',
-            zIndex: 10000,
+            zIndex: 999999,
             padding: '8px',
             animation: mounted ? 'dropdownSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+            isolation: 'isolate',
+            willChange: 'transform',
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header do dropdown */}
           <div style={{
@@ -418,10 +459,13 @@ export const AutocompleteCliente: React.FC<AutocompleteClienteProps> = ({
             `,
             padding: '32px 24px',
             textAlign: 'center',
-            zIndex: 10000,
+            zIndex: 999999,
             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
             animation: mounted ? 'dropdownSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+            isolation: 'isolate',
+            willChange: 'transform',
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           <div style={{
             width: '56px',

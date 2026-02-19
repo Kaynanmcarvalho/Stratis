@@ -61,7 +61,7 @@ const WhatsAppPageCore: React.FC = () => {
       
       try {
         const status = await whatsappService.getStatus();
-        if (status.connected) {
+        if (status?.connected) {
           setConnectionStatus({
             status: 'connected',
             phoneNumber: undefined,

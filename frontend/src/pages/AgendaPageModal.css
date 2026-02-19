@@ -1,0 +1,493 @@
+/* ============================================
+   MODAL AGENDAMENTO - iOS PREMIUM NATIVE
+   Bottom Sheet com Design Apple Award
+   FORÇA TOTAL - OVERRIDE COMPLETO
+   ============================================ */
+
+.agenda-sheet-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(12px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
+  z-index: 99999 !important;
+  animation: agendaOverlayFadeIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+}
+
+@keyframes agendaOverlayFadeIn {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(12px) saturate(120%); }
+}
+
+.agenda-sheet-container {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: 92vh !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  border-radius: 24px 24px 0 0 !important;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12), 0 -2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  animation: agendaSheetSlideUp 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  z-index: 100000 !important;
+}
+
+@keyframes agendaSheetSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.agenda-sheet-handle {
+  width: 36px !important;
+  height: 5px !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 3px !important;
+  margin: 12px auto 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.agenda-sheet-header {
+  position: relative !important;
+  padding: 20px 20px 16px !important;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.06) !important;
+  flex-shrink: 0 !important;
+  background: transparent !important;
+}
+
+.agenda-header-content {
+  text-align: center !important;
+  padding-right: 40px !important;
+}
+
+.agenda-sheet-header .agenda-title {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px !important;
+  color: #1d1d1f !important;
+  margin: 0 0 4px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif !important;
+}
+
+.agenda-sheet-header .agenda-subtitle {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #86868b !important;
+  margin: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-close-btn {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 16px !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #86868b !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.agenda-close-btn:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  transform: scale(1.05) !important;
+}
+
+.agenda-close-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.agenda-sheet-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 24px 20px 120px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.agenda-sheet-body::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.agenda-sheet-body::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.agenda-sheet-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12) !important;
+  border-radius: 3px !important;
+}
+
+.agenda-module {
+  margin-bottom: 24px !important;
+}
+
+.agenda-module-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #86868b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 12px !important;
+  padding: 0 4px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-cell {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 16px 18px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 18px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  text-align: left !important;
+}
+
+.agenda-cell:hover {
+  background: rgba(0, 122, 255, 0.04) !important;
+  border-color: rgba(0, 122, 255, 0.15) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.agenda-cell:active {
+  transform: scale(0.98) !important;
+}
+
+.agenda-cell.filled {
+  background: rgba(0, 122, 255, 0.06) !important;
+  border-color: rgba(0, 122, 255, 0.2) !important;
+}
+
+.agenda-cell-icon {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #007aff !important;
+  flex-shrink: 0 !important;
+}
+
+.agenda-cell.filled .agenda-cell-icon {
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25) !important;
+}
+
+.agenda-cell-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.agenda-cell-placeholder {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #86868b !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-cell-label-small {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #86868b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.agenda-cell-value {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1d1d1f !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-cell-chevron {
+  color: #86868b !important;
+  flex-shrink: 0 !important;
+}
+
+.agenda-contextual-input {
+  width: 100% !important;
+  padding: 14px 16px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 122, 255, 0.3) !important;
+  border-radius: 14px !important;
+  font-size: 16px !important;
+  color: #1d1d1f !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1) !important;
+}
+
+.agenda-contextual-input:focus {
+  outline: none !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #007aff !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1) !important;
+}
+
+.agenda-time-picker {
+  padding: 16px 18px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.agenda-time-input-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  justify-content: center !important;
+}
+
+.agenda-time-input {
+  padding: 12px 16px !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #1d1d1f !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif !important;
+  text-align: center !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.agenda-time-input:focus {
+  outline: none !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #007aff !important;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1) !important;
+}
+
+.agenda-time-arrow {
+  font-size: 20px !important;
+  color: #86868b !important;
+  font-weight: 300 !important;
+}
+
+.agenda-duration {
+  margin-top: 12px !important;
+  text-align: center !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #007aff !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-segmented-control {
+  position: relative !important;
+  display: flex !important;
+  gap: 0 !important;
+  padding: 4px !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+.agenda-segment {
+  flex: 1 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 12px 16px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #86868b !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-segment.active {
+  color: #1d1d1f !important;
+}
+
+.agenda-segment-indicator {
+  position: absolute !important;
+  top: 4px !important;
+  left: 4px !important;
+  width: calc(50% - 4px) !important;
+  height: calc(100% - 8px) !important;
+  background: white !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  z-index: 1 !important;
+}
+
+.agenda-stepper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 12px 16px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.agenda-stepper-btn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%) !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #007aff !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.agenda-stepper-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.15) 0%, rgba(0, 122, 255, 0.08) 100%) !important;
+  transform: scale(1.05) !important;
+}
+
+.agenda-stepper-btn:active:not(:disabled) {
+  transform: scale(0.95) !important;
+}
+
+.agenda-stepper-btn:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+.agenda-stepper-value {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+.agenda-stepper-input {
+  width: 80px !important;
+  padding: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #1d1d1f !important;
+  text-align: right !important;
+  font-variant-numeric: tabular-nums !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif !important;
+}
+
+.agenda-stepper-input:focus {
+  outline: none !important;
+}
+
+.agenda-stepper-unit {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #86868b !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-sheet-footer {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 16px 20px 32px !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.98) 20%, rgba(255, 255, 255, 0.98) 100%) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.06) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  z-index: 10 !important;
+}
+
+.agenda-cancel-link {
+  background: none !important;
+  border: none !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: #007aff !important;
+  cursor: pointer !important;
+  padding: 8px !important;
+  transition: opacity 0.2s ease !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-cancel-link:hover {
+  opacity: 0.7 !important;
+}
+
+.agenda-cancel-link:active {
+  opacity: 0.5 !important;
+}
+
+.agenda-primary-btn {
+  width: 100% !important;
+  padding: 16px 24px !important;
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%) !important;
+  border: none !important;
+  border-radius: 16px !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3), 0 2px 8px rgba(0, 122, 255, 0.2) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif !important;
+}
+
+.agenda-primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.35), 0 3px 10px rgba(0, 122, 255, 0.25) !important;
+}
+
+.agenda-primary-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.agenda-primary-btn:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus,
+  Minus,
   Search,
   Clock,
   MapPin,
@@ -15,10 +16,14 @@ import {
   Sunrise,
   Sun,
   Moon,
-  ArrowRight
+  ArrowRight,
+  Users,
+  ChevronRight,
+  Calendar
 } from 'lucide-react';
 import { Dock } from '../components/core/Dock';
 import './AgendaPage.css';
+import './AgendaPageModal.css';
 
 type OrigemAgendamento = 'ia' | 'manual';
 type StatusAgendamento = 'pendente' | 'confirmado' | 'em_execucao' | 'cancelado';
@@ -45,6 +50,9 @@ const AgendaPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'pendente' | 'confirmado' | 'conflito'>('todos');
   const [modalAberto, setModalAberto] = useState(false);
+  const [mostrarClienteInput, setMostrarClienteInput] = useState(false);
+  const [mostrarDataInput, setMostrarDataInput] = useState(false);
+  const [mostrarLocalInput, setMostrarLocalInput] = useState(false);
   
   // Form state
   const [formCliente, setFormCliente] = useState('');
@@ -363,118 +371,231 @@ const AgendaPage: React.FC = () => {
         )}
       </div>
 
-      {/* Modal - Novo Compromisso */}
+      {/* Modal - Agendamento Operacional iOS Premium */}
       {modalAberto && (
-        <div className="modal-overlay" onClick={fecharModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Novo Compromisso</h2>
-              <button className="modal-close" onClick={fecharModal}>
-                <X className="icon" />
+        <div className="agenda-sheet-overlay" onClick={fecharModal}>
+          <div className="agenda-sheet-container" onClick={(e) => e.stopPropagation()}>
+            <div className="agenda-sheet-handle" />
+            
+            <div className="agenda-sheet-header">
+              <div className="agenda-header-content">
+                <h2 className="agenda-title">Novo Compromisso</h2>
+                <p className="agenda-subtitle">Adicionar à agenda</p>
+              </div>
+              <button className="agenda-close-btn" onClick={fecharModal} aria-label="Fechar">
+                <X size={20} strokeWidth={2.5} />
               </button>
             </div>
-
-            <div className="modal-body">
-              <div className="agendamento-form">
-                <div className="form-group">
-                  <label className="form-label">Cliente *</label>
+            
+            <div className="agenda-sheet-body">
+              {/* Cliente */}
+              <div className="agenda-module">
+                {!mostrarClienteInput ? (
+                  <button 
+                    className={`agenda-cell ${formCliente ? 'filled' : ''}`}
+                    onClick={() => setMostrarClienteInput(true)}
+                  >
+                    <div className="agenda-cell-icon">
+                      <Users size={20} />
+                    </div>
+                    <div className="agenda-cell-content">
+                      {formCliente ? (
+                        <>
+                          <span className="agenda-cell-label-small">Cliente</span>
+                          <span className="agenda-cell-value">{formCliente}</span>
+                        </>
+                      ) : (
+                        <span className="agenda-cell-placeholder">Selecionar cliente</span>
+                      )}
+                    </div>
+                    <ChevronRight size={18} className="agenda-cell-chevron" />
+                  </button>
+                ) : (
                   <input
                     type="text"
-                    className="form-input"
-                    placeholder="Nome do cliente"
+                    className="agenda-contextual-input"
+                    placeholder="Nome do cliente..."
                     value={formCliente}
                     onChange={(e) => setFormCliente(e.target.value)}
+                    onBlur={() => setMostrarClienteInput(false)}
                     autoFocus
                   />
-                </div>
+                )}
+              </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Data *</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      value={formData}
-                      onChange={(e) => setFormData(e.target.value)}
-                    />
-                  </div>
-                </div>
+              {/* Data */}
+              <div className="agenda-module">
+                {!mostrarDataInput ? (
+                  <button 
+                    className={`agenda-cell ${formData ? 'filled' : ''}`}
+                    onClick={() => setMostrarDataInput(true)}
+                  >
+                    <div className="agenda-cell-icon">
+                      <Calendar size={20} />
+                    </div>
+                    <div className="agenda-cell-content">
+                      <span className="agenda-cell-label-small">Data</span>
+                      <span className="agenda-cell-value">
+                        {formData ? new Date(formData + 'T00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) : 'Selecionar'}
+                      </span>
+                    </div>
+                    <ChevronRight size={18} className="agenda-cell-chevron" />
+                  </button>
+                ) : (
+                  <input
+                    type="date"
+                    className="agenda-contextual-input"
+                    value={formData}
+                    onChange={(e) => setFormData(e.target.value)}
+                    onBlur={() => setMostrarDataInput(false)}
+                    autoFocus
+                  />
+                )}
+              </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Início *</label>
+              {/* Horário */}
+              <div className="agenda-module">
+                <div className="agenda-module-label">Horário</div>
+                <div className="agenda-time-picker">
+                  <div className="agenda-time-input-group">
                     <input
                       type="time"
-                      className="form-input"
+                      className="agenda-time-input"
                       value={formHorarioInicio}
                       onChange={(e) => setFormHorarioInicio(e.target.value)}
                     />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Fim</label>
+                    <span className="agenda-time-arrow">→</span>
                     <input
                       type="time"
-                      className="form-input"
+                      className="agenda-time-input"
                       value={formHorarioFim}
                       onChange={(e) => setFormHorarioFim(e.target.value)}
                     />
                   </div>
+                  {formHorarioInicio && formHorarioFim && (
+                    <div className="agenda-duration">
+                      Duração: {(() => {
+                        const [h1, m1] = formHorarioInicio.split(':').map(Number);
+                        const [h2, m2] = formHorarioFim.split(':').map(Number);
+                        const diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+                        const hours = Math.floor(diff / 60);
+                        const mins = diff % 60;
+                        return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
+                      })()}
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label className="form-label">Tipo *</label>
-                  <div className="tipo-selector">
-                    <button
-                      type="button"
-                      className={`tipo-option ${formTipo === 'descarga' ? 'active' : ''}`}
-                      onClick={() => setFormTipo('descarga')}
-                    >
-                      <Truck className="icon" />
-                      <span>Descarga</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`tipo-option ${formTipo === 'carga' ? 'active' : ''}`}
-                      onClick={() => setFormTipo('carga')}
-                    >
-                      <Truck className="icon" />
-                      <span>Carga</span>
-                    </button>
-                  </div>
+              {/* Tipo */}
+              <div className="agenda-module">
+                <div className="agenda-module-label">Tipo de operação</div>
+                <div className="agenda-segmented-control">
+                  <button
+                    className={`agenda-segment ${formTipo === 'descarga' ? 'active' : ''}`}
+                    onClick={() => setFormTipo('descarga')}
+                  >
+                    <Truck size={18} />
+                    <span>Descarga</span>
+                  </button>
+                  <button
+                    className={`agenda-segment ${formTipo === 'carga' ? 'active' : ''}`}
+                    onClick={() => setFormTipo('carga')}
+                  >
+                    <Truck size={18} />
+                    <span>Carga</span>
+                  </button>
+                  <div 
+                    className="agenda-segment-indicator"
+                    style={{ transform: formTipo === 'carga' ? 'translateX(100%)' : 'translateX(0)' }}
+                  />
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label className="form-label">Local</label>
+              {/* Local */}
+              <div className="agenda-module">
+                {!mostrarLocalInput ? (
+                  <button 
+                    className={`agenda-cell ${formLocal ? 'filled' : ''}`}
+                    onClick={() => setMostrarLocalInput(true)}
+                  >
+                    <div className="agenda-cell-icon">
+                      <MapPin size={20} />
+                    </div>
+                    <div className="agenda-cell-content">
+                      {formLocal ? (
+                        <>
+                          <span className="agenda-cell-label-small">Local</span>
+                          <span className="agenda-cell-value">{formLocal}</span>
+                        </>
+                      ) : (
+                        <span className="agenda-cell-placeholder">Local da operação</span>
+                      )}
+                    </div>
+                    <ChevronRight size={18} className="agenda-cell-chevron" />
+                  </button>
+                ) : (
                   <input
                     type="text"
-                    className="form-input"
+                    className="agenda-contextual-input"
                     placeholder="Galpão, setor, pátio..."
                     value={formLocal}
                     onChange={(e) => setFormLocal(e.target.value)}
+                    onBlur={() => setMostrarLocalInput(false)}
+                    autoFocus
                   />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Tonelagem Prevista</label>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    step="0.5"
-                    className="form-input"
-                    placeholder="0.0"
-                    value={formTonelagem}
-                    onChange={(e) => setFormTonelagem(e.target.value)}
-                  />
-                </div>
-
-                <button 
-                  className="btn-salvar-agendamento"
-                  onClick={salvarAgendamento}
-                >
-                  <CheckCircle2 className="icon" />
-                  <span>Criar Compromisso</span>
-                </button>
+                )}
               </div>
+
+              {/* Tonelagem */}
+              <div className="agenda-module">
+                <div className="agenda-module-label">Tonelagem prevista</div>
+                <div className="agenda-stepper">
+                  <button 
+                    className="agenda-stepper-btn"
+                    onClick={() => {
+                      const current = parseFloat(formTonelagem) || 0;
+                      if (current > 0) setFormTonelagem((current - 0.5).toFixed(1));
+                    }}
+                    disabled={!formTonelagem || parseFloat(formTonelagem) <= 0}
+                  >
+                    <Minus size={20} strokeWidth={2.5} />
+                  </button>
+                  <div className="agenda-stepper-value">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      className="agenda-stepper-input"
+                      placeholder="0.0"
+                      value={formTonelagem}
+                      onChange={(e) => setFormTonelagem(e.target.value)}
+                    />
+                    <span className="agenda-stepper-unit">t</span>
+                  </div>
+                  <button 
+                    className="agenda-stepper-btn"
+                    onClick={() => {
+                      const current = parseFloat(formTonelagem) || 0;
+                      setFormTonelagem((current + 0.5).toFixed(1));
+                    }}
+                  >
+                    <Plus size={20} strokeWidth={2.5} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="agenda-sheet-footer">
+              <button className="agenda-cancel-link" onClick={fecharModal}>
+                Cancelar
+              </button>
+              <button 
+                className="agenda-primary-btn"
+                onClick={salvarAgendamento}
+                disabled={!formCliente || !formData || !formHorarioInicio}
+              >
+                <span>Criar Compromisso</span>
+              </button>
             </div>
           </div>
         </div>

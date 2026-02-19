@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Package, 
   Plus, 
@@ -75,6 +76,7 @@ interface TrabalhoLocal {
 }
 
 const TrabalhosPageCore: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [trabalhos, setTrabalhos] = useState<TrabalhoLocal[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [trabalhoParaFinalizar, setTrabalhoParaFinalizar] = useState<string | null>(null);
@@ -89,12 +91,16 @@ const TrabalhosPageCore: React.FC = () => {
   const [touchTimer, setTouchTimer] = useState<NodeJS.Timeout | null>(null);
   const [novoTrabalho, setNovoTrabalho] = useState({
     cliente: '',
+    clienteId: '',
     tipo: 'descarga' as 'carga' | 'descarga',
     local: '',
     toneladas: '',
   });
   const [trabalhoEditando, setTrabalhoEditando] = useState<TrabalhoLocal | null>(null);
   const [mostrarModalEdicao, setMostrarModalEdicao] = useState(false);
+  const [mostrarClienteSearch, setMostrarClienteSearch] = useState(false);
+  const [mostrarLocalInput, setMostrarLocalInput] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [registroPresencaTemp, setRegistroPresencaTemp] = useState<{
     tipo: 'presente_integral' | 'meia_diaria' | 'falta_total' | 'atraso' | 'saida_antecipada';
     horarioEntrada: string;
@@ -121,6 +127,16 @@ const TrabalhosPageCore: React.FC = () => {
   const [funcionariosDisponiveis, setFuncionariosDisponiveis] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Abrir modal se action=new na URL
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      setMostrarNovoTrabalho(true);
+      // Limpar query param
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   // Carregar trabalhos do Firebase
   useEffect(() => {
     let mounted = true;
@@ -1406,83 +1422,212 @@ const TrabalhosPageCore: React.FC = () => {
           </div>
         )}
 
-        {/* Modal Novo Trabalho */}
+        {/* Modal Novo Trabalho - iOS Premium */}
         {mostrarNovoTrabalho && (
-          <div className="modal-overlay" onClick={cancelarNovoTrabalho}>
-            <div className="modal-novo-trabalho" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h3 className="modal-titulo">Nova Operação</h3>
+          <div className="ops-sheet-overlay" onClick={cancelarNovoTrabalho}>
+            <div className="ops-sheet-container" onClick={(e) => e.stopPropagation()}>
+              {/* Drag Handle */}
+              <div className="ops-sheet-handle" />
+              
+              {/* Header Premium */}
+              <div className="ops-sheet-header">
+                <div className="ops-header-content">
+                  <h2 className="ops-title">Criar Operação</h2>
+                  <p className="ops-subtitle">Leva menos de 30 segundos</p>
+                </div>
                 <button 
-                  className="modal-close-btn"
+                  className="ops-close-btn"
                   onClick={cancelarNovoTrabalho}
                   aria-label="Fechar"
                 >
-                  ×
+                  <X size={20} strokeWidth={2.5} />
                 </button>
               </div>
               
-              <div className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">Cliente *</label>
-                  <AutocompleteCliente
-                    value={novoTrabalho.cliente}
-                    onChange={(value) => setNovoTrabalho(prev => ({ ...prev, cliente: value }))}
-                    placeholder="Nome do cliente"
-                    className="form-input"
-                    autoFocus
-                  />
+              {/* Body com Scroll */}
+              <div className="ops-sheet-body">
+                {/* Módulo Cliente */}
+                <div className="ops-module">
+                  {!mostrarClienteSearch ? (
+                    <button 
+                      className={`ops-cell ${novoTrabalho.cliente ? 'filled' : ''}`}
+                      onClick={() => setMostrarClienteSearch(true)}
+                    >
+                      <div className="ops-cell-icon">
+                        <Users size={20} />
+                      </div>
+                      <div className="ops-cell-content">
+                        {novoTrabalho.cliente ? (
+                          <>
+                            <span className="ops-cell-label-small">Cliente</span>
+                            <span className="ops-cell-value">{novoTrabalho.cliente}</span>
+                          </>
+                        ) : (
+                          <span className="ops-cell-placeholder">Selecionar cliente</span>
+                        )}
+                      </div>
+                      <ChevronRight size={18} className="ops-cell-chevron" />
+                    </button>
+                  ) : (
+                    <div className="ops-autocomplete-wrapper">
+                      <AutocompleteCliente
+                        value={novoTrabalho.cliente}
+                        onChange={(value) => setNovoTrabalho(prev => ({ ...prev, cliente: value }))}
+                        onSelect={(cliente) => {
+                          setNovoTrabalho(prev => ({ 
+                            ...prev, 
+                            cliente: cliente.nome,
+                            clienteId: cliente.id 
+                          }));
+                          setMostrarClienteSearch(false);
+                        }}
+                        placeholder="Buscar cliente..."
+                        className="ops-autocomplete-input"
+                        autoFocus
+                      />
+                    </div>
+                  )}
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Tipo *</label>
-                  <div className="tipo-selector">
+                {/* Módulo Tipo - Segmented Control */}
+                <div className="ops-module">
+                  <div className="ops-module-label">Tipo de operação</div>
+                  <div className="ops-segmented-control">
                     <button
-                      className={`tipo-option ${novoTrabalho.tipo === 'descarga' ? 'active' : ''}`}
+                      className={`ops-segment ${novoTrabalho.tipo === 'descarga' ? 'active' : ''}`}
                       onClick={() => setNovoTrabalho(prev => ({ ...prev, tipo: 'descarga' }))}
                     >
-                      <Truck className="icon" />
+                      <Truck size={18} />
                       <span>Descarga</span>
                     </button>
                     <button
-                      className={`tipo-option ${novoTrabalho.tipo === 'carga' ? 'active' : ''}`}
+                      className={`ops-segment ${novoTrabalho.tipo === 'carga' ? 'active' : ''}`}
                       onClick={() => setNovoTrabalho(prev => ({ ...prev, tipo: 'carga' }))}
                     >
-                      <Truck className="icon" />
+                      <Truck size={18} />
                       <span>Carga</span>
                     </button>
+                    <div 
+                      className="ops-segment-indicator"
+                      style={{
+                        transform: novoTrabalho.tipo === 'carga' ? 'translateX(100%)' : 'translateX(0)'
+                      }}
+                    />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Local *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Galpão, setor, pátio..."
-                    value={novoTrabalho.local}
-                    onChange={(e) => setNovoTrabalho(prev => ({ ...prev, local: e.target.value }))}
-                  />
+                {/* Módulo Local */}
+                <div className="ops-module">
+                  {!mostrarLocalInput ? (
+                    <button 
+                      className={`ops-cell ${novoTrabalho.local ? 'filled' : ''}`}
+                      onClick={() => setMostrarLocalInput(true)}
+                    >
+                      <div className="ops-cell-icon">
+                        <MapPin size={20} />
+                      </div>
+                      <div className="ops-cell-content">
+                        {novoTrabalho.local ? (
+                          <>
+                            <span className="ops-cell-label-small">Local</span>
+                            <span className="ops-cell-value">{novoTrabalho.local}</span>
+                          </>
+                        ) : (
+                          <span className="ops-cell-placeholder">Local da operação</span>
+                        )}
+                      </div>
+                      <ChevronRight size={18} className="ops-cell-chevron" />
+                    </button>
+                  ) : (
+                    <input
+                      type="text"
+                      className="ops-contextual-input"
+                      placeholder="Galpão, setor, pátio..."
+                      value={novoTrabalho.local}
+                      onChange={(e) => setNovoTrabalho(prev => ({ ...prev, local: e.target.value }))}
+                      onBlur={() => {
+                        if (!novoTrabalho.local) {
+                          setMostrarLocalInput(false);
+                        }
+                      }}
+                      autoFocus
+                    />
+                  )}
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Tonelagem Prevista *</label>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    className="form-input"
-                    placeholder="0.0"
-                    value={novoTrabalho.toneladas}
-                    onChange={(e) => setNovoTrabalho(prev => ({ ...prev, toneladas: e.target.value }))}
-                  />
+                {/* Módulo Tonelagem - Stepper */}
+                <div className="ops-module">
+                  <div className="ops-module-label">Tonelagem prevista</div>
+                  <div className="ops-stepper">
+                    <button 
+                      className="ops-stepper-btn"
+                      onClick={() => {
+                        const current = parseFloat(novoTrabalho.toneladas) || 0;
+                        if (current > 0) {
+                          setNovoTrabalho(prev => ({ ...prev, toneladas: (current - 0.5).toFixed(1) }));
+                        }
+                      }}
+                      disabled={!novoTrabalho.toneladas || parseFloat(novoTrabalho.toneladas) <= 0}
+                    >
+                      <Minus size={20} strokeWidth={2.5} />
+                    </button>
+                    
+                    <div className="ops-stepper-value">
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        className="ops-stepper-input"
+                        placeholder="0.0"
+                        value={novoTrabalho.toneladas}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || parseFloat(value) >= 0) {
+                            setNovoTrabalho(prev => ({ ...prev, toneladas: value }));
+                          }
+                        }}
+                      />
+                      <span className="ops-stepper-unit">t</span>
+                    </div>
+                    
+                    <button 
+                      className="ops-stepper-btn"
+                      onClick={() => {
+                        const current = parseFloat(novoTrabalho.toneladas) || 0;
+                        setNovoTrabalho(prev => ({ ...prev, toneladas: (current + 0.5).toFixed(1) }));
+                      }}
+                    >
+                      <Plus size={20} strokeWidth={2.5} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="modal-footer">
-                <button className="btn-modal-cancelar" onClick={cancelarNovoTrabalho}>
+              {/* Footer Fixo */}
+              <div className="ops-sheet-footer">
+                <button 
+                  className="ops-cancel-link"
+                  onClick={cancelarNovoTrabalho}
+                  disabled={isCreating}
+                >
                   Cancelar
                 </button>
-                <button className="btn-modal-criar" onClick={criarNovoTrabalho}>
-                  Criar Operação
+                <button 
+                  className="ops-primary-btn"
+                  onClick={async () => {
+                    if (!novoTrabalho.cliente || !novoTrabalho.local || !novoTrabalho.toneladas) {
+                      return;
+                    }
+                    
+                    setIsCreating(true);
+                    try {
+                      await criarNovoTrabalho();
+                    } finally {
+                      setIsCreating(false);
+                    }
+                  }}
+                  disabled={!novoTrabalho.cliente || !novoTrabalho.local || !novoTrabalho.toneladas || isCreating}
+                >
+                  <span>{isCreating ? 'Criando...' : 'Criar Operação'}</span>
                 </button>
               </div>
             </div>
